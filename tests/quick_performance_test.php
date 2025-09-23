@@ -3,6 +3,7 @@
  * IP2Region 快速性能测试
  * 
  * 简化的性能测试，专注于核心性能指标
+ * 测试自动缓存机制和压缩文件处理性能
  */
 
 require_once 'vendor/autoload.php';
@@ -69,6 +70,15 @@ echo "清理缓存...\n";
 \Ip2Region::clearPersistentCache();
 \Ip2Region::clearCache();
 echo "缓存已清理\n\n";
+
+// 显示缓存状态
+echo "缓存状态信息:\n";
+$cacheStats = \Ip2Region::getCacheStats();
+echo "  缓存目录: {$cacheStats['cache_dir']}\n";
+echo "  缓存文件数: {$cacheStats['cache_files']}\n";
+echo "  总缓存大小: " . round($cacheStats['total_size'] / 1024 / 1024, 2) . "MB\n";
+echo "  IPv4已缓存: " . ($cacheStats['v4_cached'] ? '是' : '否') . "\n";
+echo "  IPv6已缓存: " . ($cacheStats['v6_cached'] ? '是' : '否') . "\n\n";
 
 // 测试函数
 function testPerformance($name, $callback, $methodInfo = '') {
@@ -221,6 +231,14 @@ echo "PHP版本: " . PHP_VERSION . "\n";
 echo "内存限制: " . ini_get('memory_limit') . "\n";
 echo "最终内存使用: " . $memory['current'] . "\n";
 echo "峰值内存使用: " . $memory['peak'] . "\n";
+
+// 显示最终缓存状态
+$finalCacheStats = \Ip2Region::getCacheStats();
+echo "最终缓存状态:\n";
+echo "  缓存文件数: {$finalCacheStats['cache_files']}\n";
+echo "  总缓存大小: " . round($finalCacheStats['total_size'] / 1024 / 1024, 2) . "MB\n";
+echo "  IPv4已缓存: " . ($finalCacheStats['v4_cached'] ? '是' : '否') . "\n";
+echo "  IPv6已缓存: " . ($finalCacheStats['v6_cached'] ? '是' : '否') . "\n";
 
 // 计算性能评分
 $performanceScore = 0;

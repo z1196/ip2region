@@ -2,7 +2,7 @@
   "type": "library",
   "name": "zoujingli/ip2region",
   "homepage": "https://github.com/zoujingli/Ip2Region",
-  "description": "ip2region v3.0 for PHP - 企业级 IP 地理位置查询库，支持 IPv4 和 IPv6，智能分片管理，高性能缓存，零依赖",
+  "description": "ip2region v3.0 for PHP - 企业级 IP 地理位置查询库，支持 IPv4 和 IPv6，自动缓存，零依赖，开箱即用",
   "license": "Apache-2.0",
   "authors": [
     {
@@ -26,11 +26,14 @@
     "ipv6",
     "php",
     "composer",
-    "分片数据库",
-    "智能压缩",
+    "压缩数据库",
+    "自动压缩",
     "高性能",
     "企业级",
     "零依赖"
+  ],
+  "bin": [
+    "bin/ip2down"
   ],
   "autoload": {
     "classmap": [
@@ -49,15 +52,13 @@
     "query": "php -r \"require 'function.php'; echo ip2region(\\$argv[1]) . PHP_EOL;\"",
     "query:search": "php -r \"require 'function.php'; echo ip2region(\\$argv[1], 'search') . PHP_EOL;\"",
     "query:memory": "php -r \"require 'function.php'; echo json_encode(ip2region(\\$argv[1], 'memory'), JSON_UNESCAPED_UNICODE) . PHP_EOL;\"",
-    "split:v4": "php tools/split_db.php v4 100 gzip",
-    "split:v6": "php tools/split_db.php v6 100 gzip",
-    "split:v4:fast": "php tools/split_db.php v4 100 gzip fast",
-    "split:v6:fast": "php tools/split_db.php v6 100 gzip fast",
-    "split:v4:zip": "php tools/split_db.php v4 100 zip",
-    "split:v6:zip": "php tools/split_db.php v6 100 zip",
-    "split:v4:none": "php tools/split_db.php v4 100 none",
-    "split:v6:none": "php tools/split_db.php v6 100 none",
-    "test:performance": "php tests/quick_performance_test.php"
+    "compress:v4": "php tools/compress_db.php ip2region_v4.xdb gzip",
+    "compress:v4:zip": "php tools/compress_db.php ip2region_v4.xdb zip",
+    "compress:v4:zstd": "php tools/compress_db.php ip2region_v4.xdb zstd",
+    "test:performance": "php tests/quick_performance_test.php",
+    "download-db": "ip2down download all",
+    "download-db:v4": "ip2down download v4",
+    "download-db:v6": "ip2down download v6"
   },
   "config": {
     "optimize-autoloader": true,

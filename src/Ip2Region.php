@@ -5,7 +5,7 @@
  * 
  * 功能特性：
  * - 支持IPv4和IPv6地址查询
- * - 支持分片数据库文件，优化大文件加载
+ * - 支持压缩数据库文件，优化大文件加载
  * - 多种缓存策略（文件缓存、向量索引、内容缓存）
  * - 高性能查询，毫秒级响应
  * - 支持多种数据库格式（xdb、dat）
@@ -20,8 +20,8 @@
  * 性能特点：
  * - 内存占用低，支持大数据库文件
  * - 查询速度快，支持高并发
- * - 支持分片数据库，减少内存使用
- * - 智能缓存机制，提升重复查询性能
+ * - 支持压缩数据库，减少内存使用
+ * - 自动缓存机制，提升重复查询性能
  */
 
 // Copyright 2022 The Ip2Region Authors. All rights reserved.
@@ -30,9 +30,6 @@
 
 if (!class_exists('ip2region\xdb\Searcher')) {
     require_once __DIR__ . '/XdbSearcher.php';
-}
-if (!class_exists('ChunkedDbHelper')) {
-    require_once __DIR__ . '/ChunkedDbHelper.php';
 }
 
 /**
@@ -52,8 +49,8 @@ class Ip2Region
     private $dbPathV6 = null;
 
     // 静态缓存，避免重复生成临时文件
-    private static $mergedV4File = null;
-    private static $mergedV6File = null;
+    private static $cachedV4File = null;
+    private static $cachedV6File = null;
     
     // 缓存文件路径，用于持久化缓存
     private static $cacheDir = null;
@@ -94,7 +91,7 @@ class Ip2Region
         } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             return 'v6';
         } else {
-            throw new Exception("无效的IP地址: {$ip}");
+            throw new \Exception("无效的IP地址: {$ip}");
         }
     }
 
@@ -140,23 +137,12 @@ class Ip2Region
             return false;
         }
         
-        // 检查缓存文件是否比源分片文件更新
-        $chunks = ChunkedDbHelper::findChunks(dirname(__DIR__) . '/db/ip2region_' . $version . '.xdb');
-        if (!empty($chunks)) {
+        // 检查缓存文件是否比源压缩文件更新
+        $compressedFile = dirname(__DIR__) . '/db/ip2region_' . $version . '.xdb.gz';
+        if (file_exists($compressedFile)) {
             $cacheTime = filemtime($cacheFile);
-            $newestChunkTime = 0;
-            
-            foreach ($chunks as $chunk) {
-                if (file_exists($chunk)) {
-                    $chunkTime = filemtime($chunk);
-                    if ($chunkTime > $newestChunkTime) {
-                        $newestChunkTime = $chunkTime;
-                    }
-                }
-            }
-            
-            // 如果缓存文件比最新的分片文件旧，认为无效
-            if ($cacheTime < $newestChunkTime) {
+            $compressedTime = filemtime($compressedFile);
+            if ($cacheTime < $compressedTime) {
                 return false;
             }
         }
@@ -176,24 +162,47 @@ class Ip2Region
     }
 
     /**
-     * 获取或创建合并的数据库文件
+     * 获取或创建数据库文件
+     * 优先级：自定义xdb > 下载的数据库文件 > IPv4压缩文件（IPv6不使用压缩）
      */
-    private function getMergedDbFile($version)
+    private function getDbFile($version)
     {
-        $staticVar = $version === 'v4' ? 'mergedV4File' : 'mergedV6File';
+        $staticVar = $version === 'v4' ? 'cachedV4File' : 'cachedV6File';
         $dbPath = $version === 'v4' ? $this->dbPathV4 : $this->dbPathV6;
         
-        // 如果使用自定义数据库，直接返回
+        // 1. 如果使用自定义数据库，直接返回
         if ($dbPath !== null && file_exists($dbPath)) {
             return $dbPath;
         }
         
-        // 检查静态缓存
+        // 2. 检查静态缓存
         if (self::$$staticVar !== null) {
             return self::$$staticVar;
         }
         
-        // 检查持久化缓存
+        // 3. 检查下载的数据库文件
+        $projectRoot = dirname(__DIR__);
+        
+        // 自动检测存储位置
+        if (strpos($projectRoot, '/vendor/') !== false) {
+            // 通过 composer 安装，优先检查项目根目录的 vendor/bin/ip2data/ 目录
+            // 需要向上 2 级：ip2region -> zoujingli -> vendor -> 项目根目录
+            $realProjectRoot = dirname(dirname(dirname($projectRoot)));
+            $downloadedFile = $realProjectRoot . '/vendor/bin/ip2data/ip2region_' . $version . '.xdb';
+            if (file_exists($downloadedFile)) {
+                self::$$staticVar = $downloadedFile;
+                return $downloadedFile;
+            }
+        }
+        
+        // 回退到项目根目录的 vendor/bin/ip2data/ 目录
+        $downloadedFile = $projectRoot . '/vendor/bin/ip2data/ip2region_' . $version . '.xdb';
+        if (file_exists($downloadedFile)) {
+            self::$$staticVar = $downloadedFile;
+            return $downloadedFile;
+        }
+        
+        // 4. 检查持久化缓存
         $cacheFile = self::$cacheDir . '/ip2region_' . $version . '.xdb';
         if (file_exists($cacheFile)) {
             // 检查缓存文件是否有效
@@ -203,22 +212,35 @@ class Ip2Region
             }
         }
         
-        // 需要重新生成
-        $chunks = ChunkedDbHelper::findChunks(dirname(__DIR__) . '/db/ip2region_' . $version . '.xdb');
-        
-        if (!empty($chunks)) {
-            // 合并到持久化缓存
-            $file = ChunkedDbHelper::mergeToCache($chunks, $cacheFile);
-            if (!$file) {
-                throw new Exception("无法合并分割的IPv{$version}数据库文件");
+        // 5. 对于 IPv4，尝试使用内置压缩数据库
+        if ($version === 'v4') {
+            $compressedFile = dirname(__DIR__) . '/db/ip2region_v4.xdb.gz';
+            if (file_exists($compressedFile)) {
+                // 解压到缓存目录
+                $decompressedFile = $cacheFile;
+                if (!file_exists($decompressedFile) || filemtime($compressedFile) > filemtime($decompressedFile)) {
+                    $fp = gzopen($compressedFile, 'rb');
+                    $out = fopen($decompressedFile, 'wb');
+                    if ($fp && $out) {
+                        while (!gzeof($fp)) {
+                            fwrite($out, gzread($fp, 8192));
+                        }
+                        fclose($fp);
+                        fclose($out);
+                    }
+                }
+                if (file_exists($decompressedFile)) {
+                    self::$$staticVar = $decompressedFile;
+                    return $decompressedFile;
+                }
             }
-            self::$$staticVar = $file;
-            return $file;
+        }
+        
+        // 6. 抛出异常，提示用户下载数据库
+        if ($version === 'v6') {
+            throw new \Exception("IPv6 查询需要下载完整数据库文件。\n\n下载方式：\n1. 使用 Composer 命令：composer download-db:v6\n2. 使用下载工具：./vendor/bin/ip2down download v6\n3. 手动下载：https://github.com/lionsoul2014/ip2region/raw/refs/heads/master/data/ip2region_v6.xdb\n\n注意：IPv6 不支持压缩文件，必须使用完整数据库。");
         } else {
-            // 回退到完整文件
-            $file = dirname(__DIR__) . '/tools/ip2region_' . $version . '.xdb';
-            self::$$staticVar = $file;
-            return $file;
+            throw new \Exception("未找到 IPv4 数据库文件。\n\n解决方案：\n1. 使用 Composer 命令：composer download-db:v4\n2. 使用下载工具：./vendor/bin/ip2down download v4\n3. 确保压缩数据库文件存在于 db/ 目录中");
         }
     }
 
@@ -228,8 +250,8 @@ class Ip2Region
     private function createSearcher($version)
     {
         try {
-            // 使用智能缓存机制获取数据库文件
-            $file = $this->getMergedDbFile($version);
+            // 使用自动缓存机制获取数据库文件
+            $file = $this->getDbFile($version);
             
             if ($version === 'v4') {
                 $ipVersion = \ip2region\xdb\IPv4::default();
@@ -238,12 +260,17 @@ class Ip2Region
             }
 
             if (!file_exists($file)) {
-                throw new Exception("数据库文件不存在: {$file}");
+                throw new \Exception("数据库文件不存在: {$file}");
             }
 
             return \ip2region\xdb\Searcher::newWithFileOnly($ipVersion, $file);
-        } catch (Exception $e) {
-            throw new Exception("创建 {$version} 查询器失败: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // 如果是数据库文件相关的错误，直接传递原始错误信息
+            if (strpos($e->getMessage(), 'IPv6 查询需要下载') !== false || 
+                strpos($e->getMessage(), '未找到 IPv4 数据库文件') !== false) {
+                throw $e;
+            }
+            throw new \Exception("创建 {$version} 查询器失败: " . $e->getMessage());
         }
     }
 
@@ -280,7 +307,7 @@ class Ip2Region
     public function searchIPv6($ip)
     {
         if (!$this->isIPv6($ip)) {
-            throw new Exception("不是有效的IPv6地址: {$ip}");
+            throw new \Exception("不是有效的IPv6地址: {$ip}");
         }
         $result = $this->memorySearch($ip);
         return isset($result['region']) ? $result['region'] : null;
@@ -376,9 +403,11 @@ class Ip2Region
      */
     public static function clearCache()
     {
-        ChunkedDbHelper::clearCache();
-        self::$mergedV4File = null;
-        self::$mergedV6File = null;
+        // 清理缓存文件
+        $instance = new self();
+        $instance->clearCacheFiles();
+        self::$cachedV4File = null;
+        self::$cachedV6File = null;
     }
 
     /**
@@ -386,14 +415,24 @@ class Ip2Region
      */
     public static function clearExpiredCache($days = 7)
     {
-        ChunkedDbHelper::clearExpiredCache($days);
+        // 清理过期缓存
+        $cacheDir = sys_get_temp_dir() . '/ip2region_cache';
+        if (is_dir($cacheDir)) {
+            $files = glob($cacheDir . '/*');
+            $expireTime = time() - ($days * 24 * 3600);
+            foreach ($files as $file) {
+                if (is_file($file) && filemtime($file) < $expireTime) {
+                    unlink($file);
+                }
+            }
+        }
     }
     
     /**
      * 清理持久化缓存
      * 
      * 清理系统临时目录中的持久化缓存文件
-     * 在 FPM 环境下，这可以避免重复生成合并文件
+     * 在 FPM 环境下，这可以避免重复生成缓存文件
      */
     public static function clearPersistentCache()
     {
@@ -418,7 +457,32 @@ class Ip2Region
      */
     public static function getCacheStats()
     {
-        return ChunkedDbHelper::getCacheStats();
+        $cacheDir = sys_get_temp_dir() . '/ip2region_cache';
+        $stats = array(
+            'cache_dir' => $cacheDir,
+            'cache_files' => 0,
+            'total_size' => 0,
+            'v4_cached' => false,
+            'v6_cached' => false
+        );
+        
+        if (is_dir($cacheDir)) {
+            $files = glob($cacheDir . '/*');
+            $stats['cache_files'] = count($files);
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    $stats['total_size'] += filesize($file);
+                    if (strpos($file, 'v4') !== false) {
+                        $stats['v4_cached'] = true;
+                    }
+                    if (strpos($file, 'v6') !== false) {
+                        $stats['v6_cached'] = true;
+                    }
+                }
+            }
+        }
+        
+        return $stats;
     }
 
     /**
@@ -567,8 +631,8 @@ class Ip2Region
     public function getCustomDbInfo()
     {
         $info = array(
-            'v4' => ChunkedDbHelper::getDbFileInfo($this->dbPathV4),
-            'v6' => ChunkedDbHelper::getDbFileInfo($this->dbPathV6)
+            'v4' => $this->getDbFileInfo($this->dbPathV4),
+            'v6' => $this->getDbFileInfo($this->dbPathV6)
         );
 
         return $info;
@@ -602,8 +666,51 @@ class Ip2Region
     public function isUsingCustomDb()
     {
         return array(
-            'v4' => $this->dbPathV4 !== null && ChunkedDbHelper::isCustomDbExists($this->dbPathV4),
-            'v6' => $this->dbPathV6 !== null && ChunkedDbHelper::isCustomDbExists($this->dbPathV6)
+            'v4' => $this->dbPathV4 !== null && $this->isCustomDbExists($this->dbPathV4),
+            'v6' => $this->dbPathV6 !== null && $this->isCustomDbExists($this->dbPathV6)
         );
+    }
+    
+    /**
+     * 清理缓存文件
+     */
+    private function clearCacheFiles()
+    {
+        $cacheDir = sys_get_temp_dir() . '/ip2region_cache';
+        if (is_dir($cacheDir)) {
+            $files = glob($cacheDir . '/*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+        }
+    }
+    
+    
+    
+    /**
+     * 获取数据库文件信息
+     */
+    private function getDbFileInfo($filePath)
+    {
+        if ($filePath === null || !file_exists($filePath)) {
+            return null;
+        }
+        
+        return array(
+            'path' => $filePath,
+            'size' => filesize($filePath),
+            'modified' => filemtime($filePath),
+            'exists' => true
+        );
+    }
+    
+    /**
+     * 检查自定义数据库是否存在
+     */
+    private function isCustomDbExists($filePath)
+    {
+        return $filePath !== null && file_exists($filePath);
     }
 }

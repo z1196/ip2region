@@ -1,0 +1,171 @@
+#!/usr/bin/env php
+<?php
+/**
+ * ip2region 数据库下载工具
+ * 
+ * @author Anyon <zoujingli@qq.com>
+ * @version 3.0.3
+ */
+
+if (php_sapi_name() !== 'cli') {
+    die('此脚本只能在命令行环境下运行');
+}
+
+// 检查是否在正确的目录
+$rootDir = dirname(__DIR__);
+if (!file_exists($rootDir . '/composer.json')) {
+    die('错误：请在项目根目录下运行此脚本');
+}
+
+require_once $rootDir . '/vendor/autoload.php';
+
+use ip2region\Ip2Region;
+
+class DatabaseDownloader
+{
+    private $manager;
+
+    public function __construct()
+    {
+        $this->manager = new \DatabaseManager();
+    }
+
+    public function run($args)
+    {
+        if (empty($args) || in_array($args[0], ['-h', '--help', 'help'])) {
+            $this->showHelp();
+            return;
+        }
+
+        $command = $args[0];
+        switch ($command) {
+            case 'download':
+                $this->downloadDatabase($args);
+                break;
+            case 'list':
+                $this->listDatabases();
+                break;
+            case 'clear':
+                $this->clearCache();
+                break;
+            case 'test':
+                $this->testDatabase();
+                break;
+            default:
+                echo "未知命令: $command\n";
+                $this->showHelp();
+        }
+    }
+
+    private function showHelp()
+    {
+        echo "ip2region 数据库下载工具 v3.0.3\n\n";
+        echo "用法: ip2down <命令> [选项]\n\n";
+        echo "命令:\n";
+        echo "  download [v4|v6|all]  下载数据库文件\n";
+        echo "  list                  列出已下载文件\n";
+        echo "  clear                 清除缓存文件\n";
+        echo "  test                  测试数据库功能\n";
+        echo "  help                  显示帮助信息\n";
+    }
+
+    private function downloadDatabase($args)
+    {
+        $version = isset($args[1]) ? $args[1] : 'all';
+        
+        try {
+            $results = $this->manager->download($version, function($message, $version = null) {
+                // 清除当前行并显示进度
+                if (strpos($message, '下载进度:') === 0 || strpos($message, '已下载:') === 0) {
+                    echo "\r" . str_pad($message, 80, ' ') . "\r";
+                    flush();
+                } else {
+                    echo $message . "\n";
+                }
+            });
+            
+            echo "\n\n下载完成！\n";
+            
+            // 显示下载结果摘要
+            foreach ($results as $ver => $result) {
+                if ($result['success']) {
+                    echo "✅ {$ver}: " . $this->formatBytes($result['size']) . "\n";
+                }
+            }
+        } catch (Exception $e) {
+            echo "\n❌ 下载失败: " . $e->getMessage() . "\n";
+        }
+    }
+
+    private function listDatabases()
+    {
+        echo "已下载的数据库文件：\n\n";
+        
+        $files = $this->manager->listFiles();
+        if (empty($files)) {
+            echo "❌ 没有找到数据库文件\n";
+            echo "请运行: ip2down download all\n";
+            return;
+        }
+
+        foreach ($files as $file) {
+            echo "📁 {$file['filename']}\n";
+            echo "   类型: {$file['type']}\n";
+            echo "   大小: " . $this->formatBytes($file['size']) . "\n";
+            echo "   修改时间: " . date('Y-m-d H:i:s', $file['modified']) . "\n\n";
+        }
+    }
+
+    private function clearCache()
+    {
+        echo "正在清除缓存文件...\n";
+        
+        // 清除持久化缓存
+        \Ip2Region::clearPersistentCache();
+        echo "✅ 持久化缓存已清除\n";
+        
+        // 清除临时文件
+        $count = $this->manager->clearCache();
+        echo "✅ 临时文件已清除 ($count 个文件)\n";
+    }
+
+    private function testDatabase()
+    {
+        echo "正在测试数据库功能...\n\n";
+        
+        try {
+            $searcher = new \Ip2Region();
+            
+            // 测试 IPv4
+            echo "测试 IPv4 查询:\n";
+            $result = $searcher->simple('8.8.8.8');
+            echo "  8.8.8.8 -> $result\n";
+            
+            // 测试 IPv6
+            echo "测试 IPv6 查询:\n";
+            $result = $searcher->simple('2001:4860:4860::8888');
+            echo "  2001:4860:4860::8888 -> $result\n";
+            
+            echo "\n✅ 数据库功能测试通过\n";
+            
+        } catch (Exception $e) {
+            echo "❌ 测试失败: " . $e->getMessage() . "\n";
+            echo "请确保已下载数据库文件: ip2down download all\n";
+        }
+    }
+
+    private function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        
+        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+            $bytes /= 1024;
+        }
+        
+        return round($bytes, $precision) . ' ' . $units[$i];
+    }
+}
+
+// 运行下载器
+$downloader = new DatabaseDownloader();
+$downloader->run(array_slice($argv, 1));

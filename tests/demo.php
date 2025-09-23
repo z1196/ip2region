@@ -6,15 +6,15 @@
  * 功能说明：
  * - 展示IP2Region库的基本使用方法
  * - 演示IPv4和IPv6地址查询功能
- * - 展示分片数据库的自动合并功能
+ * - 展示自动缓存机制和压缩文件处理
  * - 性能测试和统计信息展示
  * 
  * 演示内容：
  * 1. IPv4地址查询演示 - 使用常见公共DNS服务器
  * 2. IPv6地址查询演示 - 使用主流IPv6公共DNS
  * 3. 详细信息查询 - 展示完整的IP信息结构
- * 4. 性能统计信息 - 内存使用和IO统计
- * 5. 内存使用情况 - 当前和峰值内存使用
+ * 4. 自动缓存机制 - 展示缓存文件的使用和管理
+ * 5. 性能统计信息 - 内存使用和IO统计
  * 6. 批量查询演示 - 批量处理多个IP地址
  * 
  * 测试IP地址说明：
@@ -85,19 +85,27 @@ try {
         }
     }
 
-    echo "4. 性能统计:\n";
+    echo "4. 自动缓存机制:\n";
+    $cacheStats = Ip2Region::getCacheStats();
+    echo "  缓存目录: {$cacheStats['cache_dir']}\n";
+    echo "  缓存文件数: {$cacheStats['cache_files']}\n";
+    echo "  总缓存大小: " . round($cacheStats['total_size'] / 1024 / 1024, 2) . "MB\n";
+    echo "  IPv4已缓存: " . ($cacheStats['v4_cached'] ? '是' : '否') . "\n";
+    echo "  IPv6已缓存: " . ($cacheStats['v6_cached'] ? '是' : '否') . "\n";
+
+    echo "\n5. 性能统计:\n";
     $stats = $searcher->getStats();
     foreach ($stats as $key => $value) {
         echo "  {$key}: " . (is_bool($value) ? ($value ? '是' : '否') : $value) . "\n";
     }
 
-    echo "\n5. 内存使用:\n";
+    echo "\n6. 内存使用:\n";
     $memory = $searcher->getMemoryUsage();
     foreach ($memory as $key => $value) {
         echo "  {$key}: {$value}\n";
     }
 
-    echo "\n6. 批量查询演示:\n";
+    echo "\n7. 批量查询演示:\n";
     $batchIPs = array_keys($ipv4Tests) + array_keys($ipv6Tests);
     $batchResults = $searcher->batchSearch($batchIPs);
 

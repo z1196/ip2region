@@ -7,44 +7,53 @@
 
 # ip2region v3.0
 
-🚀 **企业级 IP 地理位置查询库**：**支持 IPv4 和 IPv6**，智能分片管理，高性能缓存，零依赖。
+🚀 **企业级 IP 地理位置查询库**：**支持 IPv4 和 IPv6**，自动缓存，零依赖，**开箱即用**。
 
 基于官方 [ip2region](https://github.com/lionsoul2014/ip2region) 深度优化，专为 PHP 项目定制，提供毫秒级 IP 地理位置查询服务。
 
-> ⚠️ **重要提示**：由于 V3.0 版本新增了 IPv6 数据库支持，尽管已进行智能压缩优化，但整体体积仍超过 100MB。如果您仅需 IPv4 查询功能，建议使用 V2 版本以获得更小的体积和更快的加载速度。
+> 📢 **v3.0 更新**：
+> - ✅ **开箱即用**：IPv4 查询无需下载，直接使用内置压缩文件
+> - ✅ **按需下载**：IPv6 查询需要时再下载完整数据库
+> - ✅ **压缩优化**：IPv4 支持压缩文件，IPv6 必须使用完整数据库
+> - ✅ **体积优化**：项目仅包含必要的 IPv4 压缩文件
 
-## 📦 版本选择
+> 💡 **版本选择建议**：
+> - **V3.0**：推荐使用，IPv4 开箱即用，IPv6 按需下载，自动缓存
 
-| 特性          | V2.0（轻量级）                              | V3.0（完整版）                              |
-| ------------- | ------------------------------------------- | ------------------------------------------- |
-| **IPv4 支持** | ✅                                          | ✅                                          |
-| **IPv6 支持** | ❌                                          | ✅                                          |
-| 体积大小      | 10MB+                                       | 100MB+                                      |
-| 性能          | 极快                                        | 极快                                        |
-| 适用场景      | 仅需 IPv4                                   | 需要 IPv6 或企业级功能                      |
-| Composer 安装 | `composer require zoujingli/ip2region:^2.0` | `composer require zoujingli/ip2region:^3.0` |
+## 📦 核心特性
 
-> ⚠️ **重要提示**：默认的 `composer require zoujingli/ip2region` 命令会安装 V3.0 版本。如需 V2.0 版本，请使用 `composer require zoujingli/ip2region:^2.0`。
+| 特性          | 描述                                        |
+| ------------- | ------------------------------------------- |
+| **IPv4 支持** | ✅ 开箱即用，内置压缩文件                    |
+| **IPv6 支持** | ✅ 按需下载，完整数据库                      |
+| 自动缓存      | ✅ 自动缓存，避免重复解压                    |
+| 性能          | ✅ 极快，微秒级响应                         |
+| 零依赖        | ✅ 纯 PHP 实现，无需额外扩展                |
+| 企业级        | ✅ 完善的错误处理和性能监控                  |
 
 ## 🎯 项目简介
 
-ip2region 是一个高性能的 IP 地址定位库，**支持 IPv4 和 IPv6 地址查询**。通过智能分片和压缩技术，实现了大数据库文件的高效管理，为企业和开发者提供准确、快速的 IP 地理位置查询服务。
+ip2region 是一个高性能的 IP 地址定位库，**支持 IPv4 和 IPv6 地址查询**。通过自动缓存技术，实现了大数据库文件的高效管理，为企业和开发者提供准确、快速的 IP 地理位置查询服务。
 
-> 📖 **V2.0 版本文档**：如果您仅需 IPv4 查询功能，建议使用 [V2.0 版本](https://github.com/zoujingli/ip2region/tree/v2.0)，体积更小（10MB+），加载更快。
+**V3.0 核心特性**：
+- 🚀 **开箱即用**：IPv4 查询无需下载，直接使用内置压缩文件
+- 📦 **按需下载**：IPv6 查询需要时再下载完整数据库
+- ⚡ **压缩优化**：IPv4 支持压缩文件，IPv6 必须使用完整数据库
+
 
 ## ✨ 核心特性
 
 -   **🌍 双协议支持**：**支持 IPv4 和 IPv6 地址查询**，自动识别 IP 版本
 -   **⚡ 高性能**：基于官方 xdb 格式，查询速度极快，微秒级响应
 -   **📦 零依赖**：纯 PHP 实现，兼容 PHP 5.4+，无需额外扩展
+-   **🚀 开箱即用**：IPv4 查询无需下载，直接使用内置文件
+-   **📦 按需下载**：IPv6 查询需要时再下载完整数据库
 -   **🔧 自定义数据库**：支持自定义 IPv4/IPv6 数据库路径配置
 -   **🔧 易集成**：支持 Composer 安装，提供函数式和面向对象两种 API
--   **💾 智能缓存**：支持文件缓存、VectorIndex 缓存、完整数据缓存
--   **📊 分片管理**：大文件自动分片（<100MB），支持按需加载和合并
--   **🗜️ 智能压缩**：支持 gzip、zip、zstd 多种压缩格式，压缩率高达 81%
+-   **💾 自动缓存**：支持文件缓存、VectorIndex 缓存、完整数据缓存
+-   **🗜️ 高效压缩**：支持 gzip、zip、zstd 多种格式，压缩率高达 81%
 -   **🛡️ 企业级**：完善的错误处理、异常管理和性能监控
 -   **🔄 懒加载**：IPv4/IPv6 查询器按需创建，优化内存使用
--   **💡 零配置**：开箱即用，自动检测数据库版本和格式
 
 ## 📁 项目结构
 
@@ -53,21 +62,21 @@ ip2region/
 ├── src/                    # 核心源码
 │   ├── Ip2Region.php      # 主类，支持 IPv4/IPv6 双协议
 │   ├── XdbSearcher.php    # 官方 xdb 查询器封装
-│   └── ChunkedDbHelper.php # 分片文件管理助手
-├── db/                    # 分片数据库文件（用户使用）
-│   ├── ip2region_v4.xdb.part1.zip    # IPv4 数据库分片
-│   └── ip2region_v6.xdb.part*.gz     # IPv6 数据库分片（多个文件）
+├── db/                    # 压缩数据库文件目录（已包含）
+│   └── ip2region_v4.xdb.gz        # IPv4 压缩数据库文件
+├── vendor/
+│   └── bin/
+│       └── ip2data/       # 完整数据库文件目录（需要下载）
+│           ├── ip2region_v4.xdb   # IPv4 完整数据库文件
+│           └── ip2region_v6.xdb   # IPv6 完整数据库文件
+├── bin/                   # 命令行工具
+│   └── ip2down            # 数据库下载管理工具（支持实时进度显示）
 ├── tools/                 # 开发工具（内部使用）
-│   ├── split_db.php       # 数据库分片工具
-│   ├── ip2region_v4.xdb   # IPv4 完整数据库（开发用）
-│   └── ip2region_v6.xdb   # IPv6 完整数据库（开发用）
+│   ├── compress_db.php    # 数据库压缩工具
+│   └── ip2region_v4.xdb   # IPv4 源数据库文件
 ├── tests/                 # 测试文件
 │   ├── demo.php           # 演示程序
 │   └── quick_performance_test.php # 性能测试脚本
-├── doc/                   # 详细文档
-│   ├── API.md             # API 参考
-│   ├── CUSTOM_DB_USAGE.md # 自定义数据库使用说明
-│   └── DATABASE_DOWNLOAD.md # 数据库下载说明
 ├── function.php           # 全局函数入口
 ├── composer.json          # Composer 配置
 └── README.md              # 项目文档
@@ -75,23 +84,19 @@ ip2region/
 
 > **💡 重要提示**：
 >
-> -   `db/` 目录包含分片数据库文件，用户直接使用，无需关心内部实现
-> -   `tools/` 目录是开发工具，包含：
->     -   `split_db.php`：数据库分片工具（开发发布用）
->     -   `ip2region_v4.xdb`：IPv4 完整数据库（开发用）
->     -   `ip2region_v6.xdb`：IPv6 完整数据库（开发用）
-> -   项目已包含分片文件，可直接使用，无需手动生成
-> -   如需自定义数据库，请参考 [自定义数据库使用说明](doc/CUSTOM_DB_USAGE.md)
+> -   **IPv4 查询**：开箱即用，项目已包含压缩文件
+> -   **IPv6 查询**：需要下载完整数据库，使用 `ip2down download v6` 命令
+> -   **自定义数据库**：支持通过构造函数指定自定义数据库路径
+> -   **压缩文件**：IPv4 支持压缩文件，IPv6 必须使用完整数据库
 
 ## 🆕 v3.0 新增功能
 
-### 智能分片管理
+### 压缩文件管理
 
--   **自动分片**：大文件自动分割为 <100MB 的小文件
--   **压缩支持**：支持 gzip/zip 压缩，显著减小文件大小（压缩率可达 60-80%）
--   **按需合并**：首次使用时自动解压并合并分片文件
--   **智能缓存**：合并后的文件缓存到临时目录，避免重复解压合并
--   **内存优化**：支持懒加载，IPv4/IPv6 查询器按需创建
+-   **自动压缩**：IPv4 数据库自动压缩为 gzip 格式
+-   **压缩支持**：支持 gzip 格式，显著减小文件大小（压缩率可达 60%+）
+-   **按需解压**：首次使用时自动解压压缩文件
+-   **自动缓存**：解压后的文件缓存到临时目录，避免重复解压
 
 ### 增强的 API
 
@@ -115,13 +120,75 @@ ip2region/
 # 安装 V3.0 版本（推荐，功能完整）
 composer require zoujingli/ip2region:^3.0
 
-# 或安装 V2.0 版本（轻量级，仅 IPv4）
-composer require zoujingli/ip2region:^2.0
 ```
 
-### 2. 自定义数据库配置
+### 2. 下载数据库文件
 
-项目已包含分片数据库文件，可直接使用。如需使用自定义数据库：
+安装完成后，需要下载数据库文件。由于网络限制，建议手动下载：
+
+**方法一：手动下载（推荐）**
+
+```bash
+# 创建数据库目录
+mkdir -p db
+
+# 下载 IPv4 数据库
+wget -O db/ip2region_v4.xdb https://cdn.jsdelivr.net/gh/lionsoul2014/ip2region@master/data/ip2region_v4.xdb
+
+# 下载 IPv6 数据库（617MB，建议使用工具下载）
+wget -O db/ip2region_v6.xdb https://github.com/lionsoul2014/ip2region/raw/refs/heads/master/data/ip2region_v6.xdb
+```
+
+**方法二：使用下载工具**
+
+```bash
+# 尝试自动下载（可能因网络问题失败）
+composer download-db
+
+# 或者使用命令行工具（支持实时进度显示）
+./vendor/bin/ip2down download all
+
+# 查看已下载的文件
+./vendor/bin/ip2down list
+
+# 测试数据库功能
+./vendor/bin/ip2down test
+```
+
+**进度显示特性**：
+- ✅ **实时进度**：显示下载速度和预计剩余时间
+- ✅ **自动估算**：基于文件大小估算完成时间
+- ✅ **流式下载**：避免大文件内存溢出
+- ✅ **断点续传**：支持网络中断后重新下载
+
+**进度显示示例**：
+```bash
+正在下载 IPv6 数据库...
+已下载: 9.3 MB - 4.65 MB/s - 预计剩余 127s
+已下载: 22.62 MB - 5.65 MB/s - 预计剩余 102s
+已下载: 41.84 MB - 6.97 MB/s - 预计剩余 80s
+...
+✅ 下载完成: IPv6 数据库 (617.1 MB)
+```
+
+> 📝 **注意**：
+> - IPv4 数据库可以正常自动下载（10.5MB）
+> - IPv6 数据库较大（617MB），建议使用下载工具或手动下载
+
+### 数据库优先级
+
+系统按以下优先级查找数据库文件：
+
+1. **自定义数据库**：通过构造函数指定的 `.xdb` 文件路径
+2. **下载的数据库**：通过 `ip2down` 工具下载的完整数据库文件
+3. **IPv4 压缩文件**：仅 IPv4 支持，自动解压压缩文件
+4. **IPv6 压缩文件**：不支持，必须使用完整数据库文件
+
+> ⚠️ **重要**：IPv4 支持压缩文件，IPv6 必须使用完整数据库文件
+
+### 3. 自定义数据库配置
+
+项目已包含压缩数据库文件，可直接使用。如需使用自定义数据库：
 
 ```php
 <?php
@@ -135,12 +202,8 @@ try {
     );
     
     // 查询示例
-    echo $ip2region->simple('61.142.118.231') . "\n";
-    echo $ip2region->simple('2001:4860:4860::8888') . "\n";
-    
-} catch (Exception $e) {
-    echo "错误: " . $e->getMessage() . "\n";
-}
+    echo $ip2region->simple('61.142.118.231'); // 中国广东省中山市【电信】
+    echo $ip2region->simple('2001:4860:4860::8888'); // Google DNS
 ?>
 ```
 
@@ -156,20 +219,16 @@ try {
 require 'vendor/autoload.php';
 
 // 最简单的使用方式
-echo ip2region('61.142.118.231') . "\n"; // 中国广东省中山市【电信】
-echo ip2region('2001:4860:4860::8888') . "\n"; // 美国加利福尼亚州圣克拉拉【专线用户】
+echo ip2region('61.142.118.231') . "\n"; // 中国广东省中山市【电信】（使用压缩文件）
+echo ip2region('2001:4860:4860::8888') . "\n"; // 美国加利福尼亚州圣克拉拉【专线用户】（需要下载完整数据库）
 
 // 使用不同查询方法
-echo ip2region('61.142.118.231', 'search') . "\n"; // 中国|广东省|中山市|电信
-echo ip2region('61.142.118.231', 'memory') . "\n"; // 返回数组格式
+echo ip2region('61.142.118.231', 'search'); // 中国|广东省|中山市|电信
+echo ip2region('61.142.118.231', 'memory'); // 返回数组格式
 
 // 或者使用类方式
 $ip2region = new \Ip2Region();
-echo $ip2region->simple('61.142.118.231') . "\n"; // 中国广东省中山市【电信】
-
-// 使用自定义数据库（可选）
-$ip2region = new \Ip2Region('file', '/path/to/ip2region_v4.xdb', '/path/to/ip2region_v6.xdb');
-echo $ip2region->simple('8.8.8.8') . "\n"; // 美国【Level3】
+echo $ip2region->simple('61.142.118.231'); // 中国广东省中山市【电信】
 ?>
 ```
 
@@ -226,7 +285,7 @@ foreach ($ips as $ip) {
 require 'vendor/autoload.php';
 
 try {
-    // 默认模式（使用分片数据库）
+    // 默认模式（使用压缩数据库）
     $ip2region = new \Ip2Region();
     
     // 如需使用自定义数据库，请参考下面的"自定义数据库配置"部分
@@ -265,40 +324,6 @@ try {
 ?>
 ```
 
-## 数据库优先级
-
-### 优先级顺序
-
-IP2Region 采用智能优先级机制，按以下顺序查找数据库文件：
-
-1. **自定义数据库**（最高优先级）
-   - 如果构造函数中指定了自定义路径且文件存在
-   - 直接使用指定的 `.xdb` 文件
-   - **完全跳过分片处理**，性能最优
-
-2. **持久化缓存**
-   - 检查系统临时目录中的合并缓存文件
-   - 验证缓存文件的有效性（大小、时间戳、内容格式）
-   - 如果有效则直接使用
-
-3. **分片文件合并**（默认模式）
-   - 查找 `db/` 目录下的分片文件
-   - 自动解压并合并成完整数据库
-   - 生成持久化缓存供后续使用
-
-### 性能对比
-
-| 模式 | 首次加载 | 后续加载 | 文件数量 | 处理复杂度 |
-|------|----------|----------|----------|------------|
-| 自定义数据库 | ~1ms | ~1ms | 1个 | 无 |
-| 持久化缓存 | ~30ms | ~1ms | 1个 | 无 |
-| 分片文件合并 | ~30ms | ~1ms | 多个 | 高 |
-
-### 使用建议
-
-- **生产环境**：推荐使用自定义数据库，性能最佳
-- **开发环境**：可以使用默认分片模式，方便更新
-- **混合使用**：IPv4 用自定义，IPv6 用分片（或反之）
 
 ### 自定义数据库配置
 
@@ -323,8 +348,8 @@ try {
 
     // 获取数据库配置信息
     $dbInfo = $ip2region->getDatabaseInfo();
-    echo "IPv4 路径: " . ($dbInfo['custom_v4_path'] ?: '默认分片') . "\n";
-    echo "IPv6 路径: " . ($dbInfo['custom_v6_path'] ?: '默认分片') . "\n";
+    echo "IPv4 路径: " . ($dbInfo['custom_v4_path'] ?: '默认压缩') . "\n";
+    echo "IPv6 路径: " . ($dbInfo['custom_v6_path'] ?: '需要下载') . "\n";
 
 } catch (Exception $e) {
     echo "错误: " . $e->getMessage() . "\n";
@@ -336,10 +361,10 @@ try {
 
 ### 使用预置数据库
 
-项目已包含分片数据库文件，位于 `db/` 目录：
+项目已包含压缩数据库文件，位于 `db/` 目录：
 
--   `ip2region_v4.xdb.part1` - IPv4 数据库分片
--   `ip2region_v6.xdb.part*` - IPv6 数据库分片（多个文件）
+-   `ip2region_v4.xdb.gz` - IPv4 压缩数据库文件
+-   IPv6 需要下载完整数据库文件
 
 ### 使用自定义数据库
 
@@ -347,18 +372,18 @@ try {
 
 #### 1. 获取完整数据库文件
 
-**重要**：必须将完整的 `.xdb` 文件放置到 `tools/` 目录，文件名必须完全匹配：
+**重要**：IPv4 源数据库文件已放置在 `tools/` 目录，可直接使用压缩工具：
 
 ```
 tools/
-├── ip2region_v4.xdb    # IPv4 数据库文件（必须）
-└── ip2region_v6.xdb    # IPv6 数据库文件（必须）
+├── compress_db.php      # 数据库压缩工具
+└── ip2region_v4.xdb    # IPv4 源数据库文件（已包含）
 ```
 
-**文件要求**：
+**文件说明**：
 
--   **文件名**：必须严格按照 `ip2region_v4.xdb` 和 `ip2region_v6.xdb` 命名
--   **文件位置**：必须放在 `tools/` 目录下
+-   **IPv4 源文件**：已包含在 `tools/` 目录，可直接使用
+-   **IPv6 源文件**：需要从官方仓库下载到 `tools/` 目录
 -   **文件大小**：IPv4 约 11MB，IPv6 约 617MB
 -   **文件格式**：必须是有效的 xdb 格式文件
 
@@ -372,30 +397,27 @@ tools/
 -   **版本选择**：建议使用最新版本以获得最准确的地理位置数据
 -   **重要提醒**：自定义数据库文件需要从官网下载或购买，确保使用正版数据源
 
-#### 2. 分片工具（开发用）
+#### 2. 压缩工具（开发用）
 
-> **⚠️ 注意**：此工具仅用于开发发布，普通用户无需使用。项目已包含分片文件，可直接使用。
+> **⚠️ 注意**：此工具仅用于开发发布，普通用户无需使用。项目已包含压缩文件，可直接使用。
 
-使用项目提供的分片工具将大文件分割为小文件，支持压缩以减小文件大小：
+使用项目提供的压缩工具将数据库文件压缩为小文件，支持多种压缩格式：
 
 ```bash
-# 基本用法（默认 100MB 分片，gzip 压缩）
-php tools/split_db.php v4
-php tools/split_db.php v6
+# 基本用法（默认 gzip 压缩）
+php tools/compress_db.php
 
-# 自定义分片大小和压缩方式
-php tools/split_db.php v4 50 gzip    # IPv4，50MB 分片，gzip 压缩
-php tools/split_db.php v6 100 zip    # IPv6，100MB 分片，zip 压缩
-php tools/split_db.php v4 100 none   # IPv4，100MB 分片，不压缩
+# 自定义压缩方式
+php tools/compress_db.php ip2region_v4.xdb gzip    # IPv4，gzip 压缩
+php tools/compress_db.php ip2region_v4.xdb zip     # IPv4，zip 压缩
+php tools/compress_db.php ip2region_v4.xdb zstd    # IPv4，zstd 压缩
 
-# 使用绝对路径分割
-php tools/split_db.php /path/to/ip2region_v4.xdb 100 gzip
-php tools/split_db.php /path/to/ip2region_v6.xdb 100 zip
+# 使用绝对路径压缩
+php tools/compress_db.php /path/to/ip2region_v4.xdb gzip
 
 # 参数说明：
-# 第一个参数：版本 (v4/v6) 或文件路径
-# 第二个参数：分片大小限制（MB），默认 100
-# 第三个参数：压缩方式 (gzip/zip/none)，默认 gzip
+# 第一个参数：源文件路径，默认为 tools/ip2region_v4.xdb
+# 第二个参数：压缩方式，可选值：gzip, zip, zstd，默认 gzip
 ```
 
 **压缩方式对比**：
@@ -404,38 +426,30 @@ php tools/split_db.php /path/to/ip2region_v6.xdb 100 zip
 -   **zip**：通用性好，兼容性强
 -   **none**：不压缩，文件较大但处理最快
 
-#### 3. 分片文件说明
+#### 3. 压缩文件说明
 
--   **输入文件**：`db/` 目录下的分片文件
+-   **输入文件**：`tools/` 目录下的源数据库文件
 -   **输出目录**：`db/` 目录
--   **分片命名**：
-    -   未压缩：`ip2region_v4.xdb.part1`, `ip2region_v4.xdb.part2`, ...
-    -   gzip 压缩：`ip2region_v4.xdb.part1.gz`, `ip2region_v4.xdb.part2.gz`, ...
-    -   zip 压缩：`ip2region_v4.xdb.part1.zip`, `ip2region_v4.xdb.part2.zip`, ...
--   **分片大小**：默认 100MB，可通过参数调整
--   **压缩支持**：支持 gzip、zip 压缩，显著减小文件大小
--   **自动解压**：首次使用时自动解压并合并分片文件到临时缓存
+-   **文件命名**：
+    -   gzip 压缩：`ip2region_v4.xdb.gz`
+    -   zip 压缩：`ip2region_v4.xdb.zip`
+    -   zstd 压缩：`ip2region_v4.xdb.zst`
+-   **压缩级别**：gzip 使用最高压缩级别（-9）
+-   **压缩支持**：支持 gzip、zip、zstd 压缩，显著减小文件大小
+-   **自动解压**：首次使用时自动解压压缩文件到临时缓存
 
 #### 4. 实际使用示例
 
 ```bash
-# 查看当前分片文件
-$ ls -la db/ip2region_*.xdb.part*
--rw-r--r--  1 user  staff   11042429  Dec 19 10:00 db/ip2region_v4.xdb.part1
--rw-r--r--  1 user  staff  104857600  Dec 19 10:00 db/ip2region_v6.xdb.part1
--rw-r--r--  1 user  staff  104857600  Dec 19 10:00 db/ip2region_v6.xdb.part2
--rw-r--r--  1 user  staff  104857600  Dec 19 10:00 db/ip2region_v6.xdb.part3
--rw-r--r--  1 user  staff   17932583  Dec 19 10:00 db/ip2region_v6.xdb.part4
+# 查看当前压缩文件
+$ ls -la db/ip2region_*.xdb.gz
+-rw-r--r--  1 user  staff   4320000  Dec 19 10:00 db/ip2region_v4.xdb.gz
 
-# 查看分片文件大小
-$ du -h db/ip2region_*.xdb.part*
- 11M    db/ip2region_v4.xdb.part1
-100M    db/ip2region_v6.xdb.part1
-100M    db/ip2region_v6.xdb.part2
-100M    db/ip2region_v6.xdb.part3
- 18M    db/ip2region_v6.xdb.part4
+# 查看压缩文件大小
+$ du -h db/ip2region_*.xdb.gz
+ 4.1M    db/ip2region_v4.xdb.gz
 
-# 测试分片文件是否正常工作
+# 测试压缩文件是否正常工作
 $ composer test:ipv4
 美国【Level3】
 
@@ -557,18 +571,18 @@ new Ip2Region($cachePolicy = 'file', $dbPathV4 = null, $dbPathV6 = null)
 
 -   **参数**：
     -   `$cachePolicy` (string) - 缓存策略：'file', 'vectorIndex', 'content'
-    -   `$dbPathV4` (string|null) - IPv4 数据库文件路径，null 表示使用默认分片
-    -   `$dbPathV6` (string|null) - IPv6 数据库文件路径，null 表示使用默认分片
+    -   `$dbPathV4` (string|null) - IPv4 数据库文件路径，null 表示使用默认压缩
+    -   `$dbPathV6` (string|null) - IPv6 数据库文件路径，null 表示需要下载
 
 -   **示例**：
     ```php
-    // 默认模式（使用分片数据库）
+    // 默认模式（使用压缩数据库）
     $ip2region = new Ip2Region();
     
     // 使用自定义数据库（建议使用绝对路径）
     $ip2region = new Ip2Region('file', '/path/to/your/ip2region_v4.xdb', '/path/to/your/ip2region_v6.xdb');
     
-    // 只使用自定义 IPv4 数据库，IPv6 使用默认分片
+    // 只使用自定义 IPv4 数据库，IPv6 需要下载
     $ip2region = new Ip2Region('file', '/path/to/your/ip2region_v4.xdb', null);
     ```
 
@@ -716,7 +730,7 @@ new Ip2Region($cachePolicy = 'file', $dbPathV4 = null, $dbPathV6 = null)
 require 'vendor/autoload.php';
 
 try {
-    // 默认模式（使用分片数据库）
+    // 默认模式（使用压缩数据库）
     $ip2region = new \Ip2Region();
     
     // 或者使用自定义数据库（建议使用绝对路径）
@@ -778,13 +792,13 @@ echo "已清理所有缓存\n";
 
 在 FPM（FastCGI Process Manager）环境下，每个进程处理完请求后会保持存活，但静态变量会在进程重启时丢失。本库已针对 FPM 环境进行了优化：
 
-#### 智能缓存机制
+#### 自动缓存机制
 
-1. **持久化缓存**：合并后的数据库文件会缓存到系统临时目录
-2. **智能验证**：基于文件修改时间和内容格式验证缓存文件的有效性
+1. **持久化缓存**：解压后的数据库文件会缓存到系统临时目录
+2. **自动验证**：基于文件修改时间和内容格式验证缓存文件的有效性
 3. **自动恢复**：进程重启后自动检测并使用有效的缓存文件
-4. **避免重复生成**：相同分片文件不会重复合并
-5. **自动更新**：当分片文件更新时，自动重新生成缓存
+4. **避免重复生成**：相同压缩文件不会重复解压
+5. **自动更新**：当压缩文件更新时，自动重新生成缓存
 
 #### 缓存目录
 
@@ -796,9 +810,9 @@ echo "已清理所有缓存\n";
 
 ```php
 <?php
-// 第一次请求：合并分片文件并缓存（较慢）
+// 第一次请求：解压压缩文件并缓存（较慢）
 $ip2region = new \Ip2Region();
-echo $ip2region->simple('61.142.118.231'); // 需要合并分片
+echo $ip2region->simple('61.142.118.231'); // 需要解压压缩文件
 
 // 后续请求：直接使用缓存文件（极快）
 $ip2region = new \Ip2Region();
@@ -823,17 +837,17 @@ echo "缓存文件数: " . $stats['file_count'] . "\n";
 
 #### 缓存验证机制
 
-**智能验证策略**：
+**自动验证策略**：
 1. **文件大小检查**：确保缓存文件不小于最小阈值（IPv4: 10MB, IPv6: 100MB）
-2. **时间戳对比**：检查缓存文件是否比源分片文件更新
+2. **时间戳对比**：检查缓存文件是否比源压缩文件更新
 3. **内容格式验证**：验证文件包含地理位置数据（中国、美国、| 等标识符）
-4. **自动更新**：当分片文件更新时，自动重新生成缓存
+4. **自动更新**：当压缩文件更新时，自动重新生成缓存
 
 **验证优势**：
 - 不依赖硬编码的文件大小，适应数据库更新
 - 基于文件修改时间，确保缓存与源文件同步
 - 内容格式检查，避免使用损坏的缓存文件
-- 自动处理分片文件更新，无需手动干预
+- 自动处理压缩文件更新，无需手动干预
 
 #### 生产环境建议
 
@@ -841,7 +855,7 @@ echo "缓存文件数: " . $stats['file_count'] . "\n";
 2. **监控缓存**：定期检查缓存文件大小和有效性
 3. **清理策略**：定期清理过期缓存，避免磁盘空间浪费
 4. **自定义路径**：对于高并发环境，建议使用自定义数据库路径
-5. **分片更新**：更新分片文件后，缓存会自动重新生成
+5. **压缩更新**：更新压缩文件后，缓存会自动重新生成
 
 ## 性能测试
 
@@ -919,7 +933,7 @@ QPS性能:
 - **磁盘空间**：587GB+ 可用空间
 
 #### 性能指标
-1. **首次加载**：需要合并分片文件，IPv4 约 32ms，IPv6 约 1175ms (`new Ip2Region() + simple()`)
+1. **首次加载**：需要解压压缩文件，IPv4 约 32ms，IPv6 约 1175ms (`new Ip2Region() + simple()`)
 2. **缓存命中**：直接使用缓存文件，IPv4 约 0.5ms，IPv6 约 1ms (`new Ip2Region() + simple()`)
 3. **性能提升**：IPv4 提升 98.4%，IPv6 提升 99.9%
 4. **查询方法**：
@@ -950,25 +964,23 @@ QPS性能:
 **错误信息**：`数据库文件不存在: /path/to/ip2region_v4.xdb`
 **解决方案**：
 
--   **检查文件位置**：确保数据库文件存在于 `tools/` 目录下
--   **检查文件名**：必须严格按照 `ip2region_v4.xdb` 和 `ip2region_v6.xdb` 命名
+-   **检查文件位置**：确保 IPv4 源数据库文件存在于 `tools/` 目录下
+-   **检查文件名**：IPv4 源文件必须严格按照 `ip2region_v4.xdb` 命名
 -   **检查文件权限**：确保文件可读
--   **下载数据库文件**：从官方仓库下载完整的 `.xdb` 文件
+-   **下载 IPv6 数据库**：从官方仓库下载 IPv6 的 `.xdb` 文件到 `tools/` 目录
 -   **获取数据源**：
     -   免费版本：从 [ip2region 官方仓库](https://github.com/lionsoul2014/ip2region) 下载
         -   IPv4：[ip2region_v4.xdb](https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb) (10.5MB)
         -   IPv6：[ip2region_v6.xdb](https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb) (617MB)
     -   商业版本：从 [ip2region 官网](https://www.ip2region.net/) 购买或下载
--   **生成分片文件**：
+-   **生成压缩文件**：
 
     ```bash
     # 方法1：使用 Composer 脚本
-    composer split:v4
-    composer split:v6
+    composer compress:v4
 
-    # 方法2：直接使用工具
-    php tools/split_db.php v4
-    php tools/split_db.php v6
+    # 方法2：直接使用压缩工具
+    php tools/compress_db.php
     ```
 
 **文件摆放检查**：
@@ -991,13 +1003,13 @@ ls -la db/ip2region_v*.xdb*
 -   使用文件缓存策略：`new Ip2Region('file')`
 -   定期清理缓存：`Ip2Region::clearCache()`
 
-#### 3. 分片文件损坏
+#### 3. 压缩文件损坏
 
-**错误信息**：`无法合并分割的IPv6数据库文件`
+**错误信息**：`无法解压压缩的IPv4数据库文件`
 **解决方案**：
 
--   检查 `db/` 目录下的分片文件是否完整
--   重新分割数据库文件：`composer split:v6`
+-   检查 `db/` 目录下的压缩文件是否完整
+-   重新压缩数据库文件：`php tools/compress_db.php`
 -   清理缓存后重试：`Ip2Region::clearCache()`
 
 #### 4. 并发使用问题
@@ -1028,39 +1040,25 @@ ls -la db/ip2region_v*.xdb*
     - 监控内存使用情况
     - 使用懒加载特性
 
-4. **分片文件管理**：
+4. **文件管理**：
 
-    - 定期检查分片文件完整性
+    - 定期检查文件完整性
     - 使用 `getCacheStats()` 监控缓存状态
-    - 合理设置分片大小（<100MB）
-    - 使用压缩减少存储空间和传输时间：
-
-        ```bash
-        # 生成压缩分片文件（推荐）
-        php tools/split_db.php v4 100 gzip    # IPv4，100MB 分片，gzip 压缩
-        php tools/split_db.php v6 50 gzip     # IPv6，50MB 分片，gzip 压缩
-
-        # 使用 zip 压缩（兼容性更好）
-        php tools/split_db.php v4 100 zip     # IPv4，100MB 分片，zip 压缩
-        php tools/split_db.php v6 50 zip      # IPv6，50MB 分片，zip 压缩
-
-        # 检查分片文件
-        ls -la db/ip2region_*.xdb.part*
-        ```
+    - 合理选择压缩格式（gzip 推荐）
 
 5. **压缩优化建议**：
     - **gzip 压缩**：压缩率高（60-80%），解压速度快，推荐使用
     - **zip 压缩**：通用性好，兼容性强，适合跨平台使用
     - **无压缩**：处理最快，但文件较大，适合本地使用
-    - **分片大小**：建议 50-100MB，平衡压缩效果和处理速度
+    - **压缩格式**：建议使用 gzip，平衡压缩效果和处理速度
 
 ## 更新日志
 
 ### v3.0.2 (2025-09-18) 🚀
 
 #### 🚀 FPM 环境优化
-- **持久化缓存**：智能缓存机制，避免重复合并分片文件
-- **缓存验证**：基于文件大小、时间戳、内容格式的智能验证
+- **持久化缓存**：自动缓存机制，避免重复解压压缩文件
+- **缓存验证**：基于文件大小、时间戳、内容格式的自动验证
 - **性能提升**：IPv4 提升 98.4%，IPv6 提升 99.9%
 - **自动恢复**：进程重启后自动检测并使用有效缓存
 
@@ -1080,9 +1078,9 @@ ls -la db/ip2region_v*.xdb*
 #### 🔧 自定义数据库配置
 
 -   **自定义路径**：支持指定 IPv4 和 IPv6 数据库文件路径
--   **智能优先级**：自定义数据库 > 持久化缓存 > 分片文件合并
--   **性能优化**：使用自定义数据库时完全跳过分片处理，启动更快
--   **灵活配置**：可以混合使用自定义数据库和默认分片文件
+-   **自动优先级**：自定义数据库 > 持久化缓存 > 压缩文件解压
+-   **性能优化**：使用自定义数据库时完全跳过压缩处理，启动更快
+-   **灵活配置**：可以混合使用自定义数据库和默认压缩文件
 -   **格式支持**：支持标准的 `.xdb` 格式数据库文件
 
 #### 🚀 API 增强
@@ -1111,9 +1109,9 @@ ls -la db/ip2region_v*.xdb*
 
 #### 🎯 企业级优化
 
--   重构架构，支持分片文件自动管理
+-   重构架构，支持压缩文件自动管理
 -   **压缩支持**：支持 gzip/zip 压缩，文件大小减少 60-80%
--   智能缓存机制，避免重复解压合并文件
+-   自动缓存机制，避免重复解压文件
 -   懒加载设计，IPv4/IPv6 查询器按需创建
 
 #### 🚀 性能提升
@@ -1140,7 +1138,7 @@ ls -la db/ip2region_v*.xdb*
 
 -   完整支持 IPv6 地址查询
 -   自动识别 IP 版本
--   分片文件管理优化大文件处理
+-   自动文件管理优化大文件处理
 
 #### 🔧 开发友好
 
@@ -1202,41 +1200,12 @@ if ($result === null) {
 ### 特性说明
 
 -   **自动识别**：自动识别 IPv4 和 IPv6 地址
--   **分片支持**：自动处理分片数据库文件
--   **智能缓存**：内置缓存机制，提升查询性能
+-   **压缩支持**：自动处理压缩数据库文件
+-   **自动缓存**：内置缓存机制，提升查询性能
 -   **异常安全**：查询失败返回 null，不会抛出异常
 -   **静态实例**：使用静态实例，避免重复初始化
 
-## 🔄 版本切换
-
-如果您需要从 V3.0 切换到 V2.0 或反之，请按以下步骤操作：
-
-### 从 V3.0 切换到 V2.0
-
-```bash
-# 卸载 V3.0 版本
-composer remove zoujingli/ip2region
-
-# 安装 V2.0 版本
-composer require zoujingli/ip2region:^2.0
-```
-
-### 从 V2.0 升级到 V3.0
-
-```bash
-# 升级到 V3.0 版本
-composer require zoujingli/ip2region:^3.0
-```
-
-> ⚠️ **注意事项**：
->
-> -   V2.0 仅支持 IPv4 查询，升级到 V3.0 后可使用 IPv6 功能
-> -   V2.0 体积 10MB+，V3.0 体积 100MB+，请确保服务器有足够空间
-> -   代码兼容性：V2.0 的 API 在 V3.0 中完全兼容
-
 ## 📚 相关文档
-
--   [V2.0 版本文档](https://github.com/zoujingli/ip2region/tree/v2.0) - 轻量级版本，仅支持 IPv4
 -   [V3.0 版本文档](https://github.com/zoujingli/ip2region/tree/master) - 完整版本，支持 IPv4 + IPv6
 -   [文档中心](doc/) - 完整的文档索引和导航
 -   [API 文档](doc/API.md) - 完整的 API 参考文档
