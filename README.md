@@ -141,9 +141,17 @@ mkdir -p db
 # 下载 IPv4 数据库
 wget -O db/ip2region_v4.xdb https://cdn.jsdelivr.net/gh/lionsoul2014/ip2region@master/data/ip2region_v4.xdb
 
-# 下载 IPv6 数据库（617MB，建议使用工具下载）
-wget -O db/ip2region_v6.xdb https://github.com/lionsoul2014/ip2region/raw/refs/heads/master/data/ip2region_v6.xdb
+# 下载 IPv6 数据库（617MB，推荐使用 Gitee 镜像，国内访问更快）
+wget -O db/ip2region_v6.xdb "https://gitee.com/lionsoul/ip2region/raw/master/data/ip2region_v6.xdb?lfs=1"
+
+# 或者使用 curl（如果 wget 不可用）
+curl -L -o db/ip2region_v6.xdb "https://gitee.com/lionsoul/ip2region/raw/master/data/ip2region_v6.xdb?lfs=1"
 ```
+
+> 💡 **下载提示**：
+> - **IPv4**：已包含在项目中，无需下载
+> - **IPv6**：推荐使用 Gitee 镜像，国内访问速度更快更稳定
+> - **备用链接**：如果 Gitee 不可用，可使用 GitHub 原始链接
 
 **方法二：使用下载工具（推荐）**
 
@@ -220,7 +228,7 @@ try {
 
 **获取数据库文件**：
 - **IPv4 数据库**：✅ 已包含在项目中，无需下载
-- **IPv6 数据库**：⚠️ **需要下载**（617MB），从 [ip2region 官方仓库](https://github.com/lionsoul2014/ip2region) 下载
+- **IPv6 数据库**：⚠️ **需要下载**（617MB），推荐从 [Gitee 镜像](https://gitee.com/lionsoul/ip2region) 下载
 - **商业版本**：从 [ip2region 官网](https://www.ip2region.net/) 购买或下载
 - **详细说明**：请参考 [自定义数据库使用说明](doc/CUSTOM_DB_USAGE.md)
 

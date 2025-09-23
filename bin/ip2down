@@ -11,15 +11,32 @@ if (php_sapi_name() !== 'cli') {
     die('此脚本只能在命令行环境下运行');
 }
 
-// 检查是否在正确的目录
-$rootDir = dirname(__DIR__);
-if (!file_exists($rootDir . '/composer.json')) {
-    die('错误：请在项目根目录下运行此脚本');
+// 检测项目根目录和 autoload 文件
+$rootDir = null;
+$autoloadFile = null;
+
+// 判断是否在 Composer 安装环境（vendor/bin 目录）
+if (strpos(__DIR__, '/vendor/bin') !== false) {
+    // Composer 安装环境：项目根目录是当前目录的上级的上级
+    $rootDir = dirname(__DIR__, 2);
+} else {
+    // 开发环境：先检查当前目录，再检查上级目录
+    if (file_exists(__DIR__ . '/composer.json')) {
+        $rootDir = __DIR__;
+    } else {
+        $rootDir = dirname(__DIR__, 1);
+    }
 }
 
-require_once $rootDir . '/vendor/autoload.php';
+$autoloadFile = $rootDir . '/vendor/autoload.php';
 
-use ip2region\Ip2Region;
+if (!file_exists($rootDir . '/composer.json') || !file_exists($autoloadFile)) {
+    die('错误：无法找到项目根目录或 autoload 文件');
+}
+
+require_once $autoloadFile;
+
+// 核心类没有命名空间，直接使用
 
 class DatabaseDownloader
 {

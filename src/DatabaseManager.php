@@ -17,7 +17,7 @@ class DatabaseManager
             'minSize' => 10 * 1024 * 1024 // 10MB
         ],
         'v6' => [
-            'url' => 'https://github.com/lionsoul2014/ip2region/raw/refs/heads/master/data/ip2region_v6.xdb',
+            'url' => 'https://gitee.com/lionsoul/ip2region/raw/master/data/ip2region_v6.xdb?lfs=1',
             'filename' => 'ip2region_v6.xdb',
             'description' => 'IPv6 数据库',
             'minSize' => 100 * 1024 * 1024 // 100MB
