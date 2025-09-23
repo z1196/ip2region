@@ -16,7 +16,7 @@ $rootDir = null;
 $autoloadFile = null;
 
 // 判断是否在 Composer 安装环境（vendor/bin 目录）
-if (strpos(__DIR__, '/vendor/bin') !== false) {
+if (strpos(__DIR__, 'vendor/bin') !== false) {
     // Composer 安装环境：项目根目录是当前目录的上级的上级
     $rootDir = dirname(__DIR__, 2);
 } else {

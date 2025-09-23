@@ -20,9 +20,11 @@
 
 #### 工具修复
 - **修复 Composer 安装问题**：修复 `ip2down` 工具在 Composer 安装后无法找到 autoload 文件的问题
-- **简化路径检测**：通过判断 `__DIR__` 是否包含 `/vendor/bin` 来区分环境，代码更简洁
+- **简化路径检测**：通过判断 `__DIR__` 是否包含 `vendor/bin` 来区分环境，代码更简洁
 - **优化 dirname 使用**：使用 `dirname(__DIR__, 2)` 替代 `dirname(dirname(__DIR__))`，代码更清晰
+- **修复路径匹配**：将 `/vendor/bin` 改为 `vendor/bin` 以正确识别 Composer 安装环境
 - **增强兼容性**：确保工具在开发环境和 Composer 安装环境下都能正常工作
+- **验证功能**：在真实 Composer 安装环境中验证 IPv6 数据库下载功能正常工作
 
 ## v3.0.2 (2025-09-23) - 开箱即用优化
 
