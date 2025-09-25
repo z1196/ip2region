@@ -266,11 +266,11 @@ composer download-db
 1. **自定义数据库**：通过构造函数指定的 `.xdb` 文件路径
 2. **下载的数据库**：通过 `ip2down` 工具下载的完整数据库文件
 3. **IPv4 压缩文件**：仅 IPv4 支持，自动解压压缩文件
-4. **IPv6 压缩文件**：不支持，必须使用完整数据库文件
+4. **IPv6 压缩文件**：⚠️ **不建议使用压缩**，建议直接使用完整数据库文件
 
 > ⚠️ **重要**：
 > - **IPv4**：支持压缩文件，开箱即用
-> - **IPv6**：⚠️ **必须下载完整数据库文件**（617MB），不支持压缩文件
+> - **IPv6**：⚠️ **不建议压缩**，直接使用完整数据库文件（617MB）性能更佳
 
 ### 3. 自定义数据库配置
 
@@ -484,21 +484,24 @@ tools/
 
 使用项目提供的压缩工具将数据库文件压缩为小文件，支持多种压缩格式：
 
+> ⚠️ **注意**：**仅建议压缩 IPv4 数据库**，IPv6 数据库不建议压缩，直接使用完整文件性能更佳。
+
 ```bash
-# 基本用法（默认 gzip 压缩）
+# 基本用法（默认 gzip 压缩，仅 IPv4）
 php tools/compress_db.php
 
-# 自定义压缩方式
+# 自定义压缩方式（仅 IPv4）
 php tools/compress_db.php ip2region_v4.xdb gzip    # IPv4，gzip 压缩
 php tools/compress_db.php ip2region_v4.xdb zip     # IPv4，zip 压缩
 php tools/compress_db.php ip2region_v4.xdb zstd    # IPv4，zstd 压缩
 
-# 使用绝对路径压缩
+# 使用绝对路径压缩（仅 IPv4）
 php tools/compress_db.php /path/to/ip2region_v4.xdb gzip
 
 # 参数说明：
 # 第一个参数：源文件路径，默认为 tools/ip2region_v4.xdb
 # 第二个参数：压缩方式，可选值：gzip, zip, zstd，默认 gzip
+# ⚠️ 注意：IPv6 数据库不建议压缩，直接使用完整文件
 ```
 
 **压缩方式对比**：
@@ -568,7 +571,7 @@ composer download:v4
 # 下载 IPv6 数据库
 composer download:v6
 
-# 压缩 IPv4 数据库（gzip 格式）
+# 压缩 IPv4 数据库（gzip 格式，IPv6 不建议压缩）
 composer compress
 ```
 
@@ -1085,11 +1088,13 @@ QPS性能:
 -   **生成压缩文件**：
 
     ```bash
-    # 方法1：使用 Composer 脚本
+    # 方法1：使用 Composer 脚本（仅 IPv4）
     composer compress
 
-    # 方法2：直接使用压缩工具
+    # 方法2：直接使用压缩工具（仅 IPv4）
     php tools/compress_db.php
+    
+    # ⚠️ 注意：IPv6 数据库不建议压缩，直接使用完整文件性能更佳
     ```
 
 **文件摆放检查**：
@@ -1099,8 +1104,8 @@ QPS性能:
 ls -la db/ip2region_v*.xdb*
 
 # 应该看到类似输出：
-# -rw-r--r-- 1 user staff 11042429 Dec 19 10:00 db/ip2region_v4.xdb.part1.zip
-# -rw-r--r-- 1 user staff 617000000 Dec 19 10:00 db/ip2region_v6.xdb.part1.gz
+# -rw-r--r-- 1 user staff 11042429 Dec 19 10:00 db/ip2region_v4.xdb.gz
+# -rw-r--r-- 1 user staff 617000000 Dec 19 10:00 db/ip2region_v6.xdb.gz
 ```
 
 #### 2. 内存不足
