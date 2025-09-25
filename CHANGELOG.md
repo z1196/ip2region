@@ -313,17 +313,20 @@ php tools/split_db.php v6 30 gzip
 # 运行演示
 composer demo
 
-# 测试IPv4查询
-composer test:ipv4
+# 查询单个IP
+composer query 8.8.8.8
 
-# 测试IPv6查询
-composer test:ipv6
+# 批量查询IP
+composer query:batch "8.8.8.8,114.114.114.114"
 
-# 压缩IPv6数据库
-composer split:v6
+# 下载数据库
+composer download
 
-# 快速压缩模式
-composer split:v6:fast
+# 压缩IPv4数据库
+composer compress
+
+# 性能测试
+composer performance
 ```
 
 ### 🐛 修复问题

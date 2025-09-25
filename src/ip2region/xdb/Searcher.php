@@ -19,7 +19,7 @@
  * 
  * @package ip2region\xdb
  * @author The Ip2Region Authors
- * @version 3.0
+ * @version 3.0.3
  */
 
 // Copyright 2022 The Ip2Region Authors. All rights reserved.
@@ -60,8 +60,9 @@ class Searcher
      * 
      * 创建一个基于XDB文件的搜索引擎实例
      * 使用文件句柄进行数据读取，适合大文件处理
+     * 内部会将 int 版本参数转换为对应的版本对象
      * 
-     * @param IPv4|IPv6 $version IP版本对象
+     * @param int $version IP版本（4或6）
      * @param string $dbFile XDB数据库文件路径
      * @return Searcher 返回搜索引擎实例
      * @throws \Exception 当文件不存在或无法打开时抛出异常
@@ -83,8 +84,9 @@ class Searcher
      * 
      * 创建一个基于XDB文件和向量索引的搜索引擎实例
      * 使用预加载的向量索引提高搜索性能
+     * 内部会将 int 版本参数转换为对应的版本对象
      * 
-     * @param IPv4|IPv6 $version IP版本对象
+     * @param int $version IP版本（4或6）
      * @param string $dbFile XDB数据库文件路径
      * @param string $vIndex 向量索引数据
      * @return Searcher 返回搜索引擎实例
@@ -107,8 +109,9 @@ class Searcher
      * 
      * 创建一个基于内存缓冲区的搜索引擎实例
      * 使用预加载的内容缓冲区，适合小文件或内存充足的环境
+     * 内部会将 int 版本参数转换为对应的版本对象
      * 
-     * @param IPv4|IPv6 $version IP版本对象
+     * @param int $version IP版本（4或6）
      * @param string $cBuff 内容缓冲区数据
      * @return Searcher 返回搜索引擎实例
      * 
@@ -134,7 +137,7 @@ class Searcher
      * 根据提供的参数初始化搜索引擎实例
      * 支持文件句柄、向量索引和内容缓冲区三种模式
      * 
-     * @param IPv4|IPv6 $version IP版本对象
+     * @param IPv4|IPv6 $version IP版本对象（IPv4或IPv6）
      * @param string|null $dbFile XDB数据库文件路径
      * @param string|null $vectorIndex 向量索引数据
      * @param string|null $cBuff 内容缓冲区数据
@@ -142,20 +145,25 @@ class Searcher
      * 
      * @example
      * ```php
-     * $searcher = new Searcher(4, '/path/to/ipv4.xdb');
+     * $searcher = new Searcher(IPv4::default(), '/path/to/ipv4.xdb');
      * ```
      */
     function __construct($version, $dbFile, $vectorIndex = null, $cBuff = null)
     {
         $this->version = $version;
-        $this->vectorIndex = $vectorIndex;
-        $this->contentBuff = $cBuff;
-
-        if ($dbFile != null) {
-            $this->handle = fopen($dbFile, 'rb');
+        
+        // check the content buffer first
+        if ($cBuff != null) {
+            $this->vectorIndex = null;
+            $this->contentBuff = $cBuff;
+        } else {
+            // open the xdb binary file
+            $this->handle = fopen($dbFile, "r");
             if ($this->handle === false) {
-                throw new \Exception("failed to open xdb file `{$dbFile}`");
+                throw new \Exception("failed to open xdb file '%s'", $dbFile);
             }
+
+            $this->vectorIndex = $vectorIndex;
         }
     }
 
@@ -370,6 +378,7 @@ class Searcher
     {
         return $this->version->id;
     }
+
 
     /**
      * 关闭搜索引擎
