@@ -32,33 +32,27 @@ function detectProjectPath()
     if ($toolPath === 'Command line code' || strpos($toolPath, 'php') !== false) {
         $toolPath = __DIR__ . DIRECTORY_SEPARATOR . 'ip2down';
     }
-
-    // 检查是否在 vendor/bin 目录下
-    $isProduction = strpos($toolPath, 'vendor' . DIRECTORY_SEPARATOR . 'bin') !== false;
-
-    if ($isProduction) {
-        // 正式模式：vendor/bin/ip2down 需要往上3级才是项目根目录
-        // vendor/bin/ip2down -> vendor/bin -> vendor -> project_root
-        $rootDir = dirname($toolPath, 3);
-
-        // 验证找到的根目录是否正确（包含 composer.json）
-        if (!file_exists($rootDir . DIRECTORY_SEPARATOR . 'composer.json')) {
-            die('错误：无法找到项目根目录，请确保在正确的 Composer 项目中使用此工具');
-        }
+    
+    // 只有两种情况：
+    // 1. vendor/zoujingli/ip2region/bin/ip2down (Composer 安装) - 最具体
+    // 2. bin/ip2down (开发模式) - 最通用
+    
+    if (strpos($toolPath, 'vendor' . DIRECTORY_SEPARATOR . 'zoujingli' . DIRECTORY_SEPARATOR . 'ip2region' . DIRECTORY_SEPARATOR . 'bin') !== false) {
+        // 情况1：vendor/zoujingli/ip2region/bin/ip2down
+        // 需要往上5级：vendor/zoujingli/ip2region/bin -> zoujingli/ip2region -> vendor -> project_root
+        $rootDir = dirname($toolPath, 5);
+        $isProduction = true;
     } else {
-        // 开发模式：如果在 bin 目录，向上1级就是项目根目录
-        if (strpos($toolPath, DIRECTORY_SEPARATOR . 'bin') !== false) {
-            $rootDir = dirname($toolPath);
-        } else {
-            // 其他情况：当前目录或上级目录
-            $rootDir = file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'composer.json') ? __DIR__ : dirname(__DIR__);
-        }
+        // 情况2：bin/ip2down (开发模式)
+        // bin/ip2down -> bin，再向上1级到项目根目录
+        $rootDir = dirname($toolPath); // bin/ip2down -> bin
+        $rootDir = dirname($rootDir);  // bin -> project_root
+        $isProduction = false;
+    }
 
-        // 验证找到的根目录是否正确（包含 composer.json）
-        if (!file_exists($rootDir . DIRECTORY_SEPARATOR . 'composer.json')) {
-            // 如果当前目录不对，尝试上级目录
-            $rootDir = dirname($rootDir);
-        }
+    // 验证找到的根目录是否正确（包含 composer.json）
+    if (!file_exists($rootDir . DIRECTORY_SEPARATOR . 'composer.json')) {
+        die('错误：无法找到项目根目录，请确保在正确的 Composer 项目中使用此工具');
     }
 
     return ['rootDir' => $rootDir, 'isProduction' => $isProduction];

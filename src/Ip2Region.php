@@ -249,33 +249,30 @@ class Ip2Region
      */
     private function detectProjectRoot()
     {
-        // 检查是否在 vendor 目录下（通过反射获取实际文件路径）
+        // 通过反射获取实际文件路径
         $reflection = new ReflectionClass($this);
         $actualPath = dirname($reflection->getFileName());
-        $isProduction = strpos($actualPath, 'vendor' . DIRECTORY_SEPARATOR) !== false;
         
-        if ($isProduction) {
-            // 正式模式：vendor/package/src 向上4级才是项目根目录
-            // vendor/package/src -> package -> vendor -> project_root
+        // 只有两种情况：
+        // 1. vendor/zoujingli/ip2region/src (Composer 安装) - 最具体
+        // 2. src (开发模式) - 最通用
+        
+        if (strpos($actualPath, 'vendor' . DIRECTORY_SEPARATOR . 'zoujingli' . DIRECTORY_SEPARATOR . 'ip2region' . DIRECTORY_SEPARATOR . 'src') !== false) {
+            // 情况1：vendor/zoujingli/ip2region/src
+            // 需要往上4级：vendor/zoujingli/ip2region/src -> zoujingli/ip2region -> vendor -> project_root
             $projectRoot = dirname($actualPath, 4);
-            
-            // 验证找到的根目录是否正确（包含 composer.json）
-            if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
-                die('错误：无法找到项目根目录，请确保在正确的 Composer 项目中使用此库');
-            }
-            
-            return $projectRoot;
         } else {
-            // 开发模式：当前目录或上级目录
-            $projectRoot = file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'composer.json') ? __DIR__ : dirname(__DIR__);
-            
-            // 验证找到的根目录是否正确（包含 composer.json）
-            if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
-                $projectRoot = dirname($projectRoot);
-            }
-            
-            return $projectRoot;
+            // 情况2：src (开发模式)
+            // 向上1级就是项目根目录
+            $projectRoot = dirname($actualPath);
         }
+        
+        // 验证找到的根目录是否正确（包含 composer.json）
+        if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
+            die('错误：无法找到项目根目录，请确保在正确的 Composer 项目中使用此库');
+        }
+        
+        return $projectRoot;
     }
 
     private function getDbFile($version)
