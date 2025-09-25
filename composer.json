@@ -36,8 +36,11 @@
     "bin/ip2down"
   ],
   "autoload": {
+    "psr-4": {
+      "ip2region\\": "src/ip2region/"
+    },
     "classmap": [
-      "src/"
+      "src/Ip2Region.php"
     ],
     "files": [
       "function.php"

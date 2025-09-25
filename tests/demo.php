@@ -29,7 +29,7 @@
  * php tests/demo.php
  */
 
-require_once __DIR__ . '/../src/Ip2Region.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 echo "=== Ip2Region 演示 ===\n\n";
 
@@ -71,7 +71,7 @@ try {
     }
 
     echo "\n3. 详细信息查询:\n";
-    $testIPs = ['61.142.118.231', '114.114.114.114', '2001:4860:4860::8888'];
+    $testIPs = array('61.142.118.231', '114.114.114.114', '2001:4860:4860::8888');
     foreach ($testIPs as $ip) {
         $info = $searcher->getIpInfo($ip);
         if ($info) {

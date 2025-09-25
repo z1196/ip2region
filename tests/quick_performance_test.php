@@ -101,8 +101,12 @@ $firstLoadV4 = testPerformance("  IPv4首次加载", function() {
 }, "new Ip2Region() + simple()");
 
 $firstLoadV6 = testPerformance("  IPv6首次加载", function() {
-    $ip2region = new \Ip2Region();
-    return $ip2region->simple('2001:4860:4860::8888');
+    try {
+        $ip2region = new \Ip2Region();
+        return $ip2region->simple('2001:4860:4860::8888');
+    } catch (Exception $e) {
+        return "IPv6数据库未下载: " . $e->getMessage();
+    }
 }, "new Ip2Region() + simple()");
 
 // 2. 缓存命中测试
@@ -113,8 +117,12 @@ $cacheHitV4 = testPerformance("  IPv4缓存命中", function() {
 }, "new Ip2Region() + simple() (使用缓存)");
 
 $cacheHitV6 = testPerformance("  IPv6缓存命中", function() {
-    $ip2region = new \Ip2Region();
-    return $ip2region->simple('2400:3200::1');
+    try {
+        $ip2region = new \Ip2Region();
+        return $ip2region->simple('2400:3200::1');
+    } catch (Exception $e) {
+        return "IPv6数据库未下载: " . $e->getMessage();
+    }
 }, "new Ip2Region() + simple() (使用缓存)");
 
 // 3. 查询方法对比
@@ -135,9 +143,13 @@ $memoryTime = testPerformance("  memorySearch方法", function() use ($ip2region
 // 4. 批量查询测试
 echo "\n4. 批量查询测试:\n";
 $batchTime = testPerformance("  批量查询(10个IP)", function() use ($ip2region) {
-    $ips = ['61.142.118.231', '8.8.8.8', '114.114.114.114', '1.1.1.1', '223.5.5.5', 
-            '2001:4860:4860::8888', '2400:3200::1', '2606:4700:4700::1111', '180.76.76.76', '202.96.134.133'];
-    return $ip2region->batchSearch($ips);
+    try {
+        $ips = ['61.142.118.231', '8.8.8.8', '114.114.114.114', '1.1.1.1', '223.5.5.5', 
+                '2001:4860:4860::8888', '2400:3200::1', '2606:4700:4700::1111', '180.76.76.76', '202.96.134.133'];
+        return $ip2region->batchSearch($ips);
+    } catch (Exception $e) {
+        return "批量查询包含IPv6地址，需要下载IPv6数据库: " . $e->getMessage();
+    }
 }, "ip2region->batchSearch(10个IP)");
 
 // 生成10000个测试IP
