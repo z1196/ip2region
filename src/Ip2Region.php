@@ -248,6 +248,19 @@ class Ip2Region
      * $v6DbPath = $searcher->getDbFile('v6'); // 获取IPv6数据库路径
      * ```
      */
+    private function detectProjectRoot()
+    {
+        $isProduction = strpos(__DIR__, 'zoujingli/ip2region') !== false;
+        
+        if ($isProduction) {
+            // 正式模式：从 zoujingli/ip2region 向上3级到项目根目录
+            return dirname(__DIR__, 3);
+        } else {
+            // 开发模式：当前目录或上级目录
+            return file_exists(__DIR__ . '/composer.json') ? __DIR__ : dirname(__DIR__);
+        }
+    }
+
     private function getDbFile($version)
     {
         $staticVar = $version === 'v4' ? 'cachedV4File' : 'cachedV6File';
@@ -264,30 +277,10 @@ class Ip2Region
         }
 
         // 3. 检查下载的数据库文件
-        $projectRoot = dirname(__DIR__);
+        $projectRoot = $this->detectProjectRoot();
 
-        // 自动检测存储位置
-        if (strpos($projectRoot, '/vendor/') !== false) {
-            // 通过 composer 安装，优先检查项目根目录的 vendor/bin/ip2data/ 目录
-            // 需要向上 2 级：ip2region -> zoujingli -> vendor -> 项目根目录
-            $realProjectRoot = dirname(dirname(dirname($projectRoot)));
-            $downloadedFile = $realProjectRoot . '/vendor/bin/ip2data/ip2region_' . $version . '.xdb';
-            if (file_exists($downloadedFile)) {
-                self::$$staticVar = $downloadedFile;
-                return $downloadedFile;
-            }
-        }
-
-        // 回退到当前项目目录的 vendor/bin/ip2data/ 目录
+        // 检查项目根目录的 vendor/bin/ip2data/ 目录
         $downloadedFile = $projectRoot . '/vendor/bin/ip2data/ip2region_' . $version . '.xdb';
-        if (file_exists($downloadedFile)) {
-            self::$$staticVar = $downloadedFile;
-            return $downloadedFile;
-        }
-
-        // 开发环境：检查当前目录的 vendor/bin/ip2data/ 目录
-        $currentDir = __DIR__;
-        $downloadedFile = $currentDir . '/vendor/bin/ip2data/ip2region_' . $version . '.xdb';
         if (file_exists($downloadedFile)) {
             self::$$staticVar = $downloadedFile;
             return $downloadedFile;

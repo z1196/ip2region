@@ -19,8 +19,28 @@ if (php_sapi_name() !== 'cli') {
     die('此脚本只能在命令行环境下运行');
 }
 
+/**
+ * 统一的路径检测函数
+ * 
+ * @return array ['rootDir' => string, 'isProduction' => bool]
+ */
+function detectProjectPath() {
+    $isProduction = strpos(__DIR__, 'zoujingli/ip2region') !== false;
+    
+    if ($isProduction) {
+        // 正式模式：从 zoujingli/ip2region 向上3级到项目根目录
+        $rootDir = dirname(__DIR__, 3);
+    } else {
+        // 开发模式：当前目录或上级目录
+        $rootDir = file_exists(__DIR__ . '/composer.json') ? __DIR__ : dirname(__DIR__);
+    }
+    
+    return ['rootDir' => $rootDir, 'isProduction' => $isProduction];
+}
+
 // 路径检测和自动加载
-$rootDir = strpos(__DIR__, 'vendor/bin') !== false ? dirname(__DIR__, 2) : (file_exists(__DIR__ . '/composer.json') ? __DIR__ : dirname(__DIR__));
+$pathInfo = detectProjectPath();
+$rootDir = $pathInfo['rootDir'];
 $autoloadFile = $rootDir . '/vendor/autoload.php';
 
 if (!file_exists($rootDir . '/composer.json') || !file_exists($autoloadFile)) {
@@ -50,10 +70,9 @@ class DatabaseManager
 
     public function __construct()
     {
-        $projectRoot = dirname(__DIR__);
-        if (strpos($projectRoot, '/vendor/') !== false) {
-            $projectRoot = dirname($projectRoot, 3);
-        }
+        $pathInfo = detectProjectPath();
+        $projectRoot = $pathInfo['rootDir'];
+        
         $this->dbDir = $projectRoot . '/vendor/bin/ip2data';
         if (!is_dir($this->dbDir)) {
             mkdir($this->dbDir, 0755, true);
