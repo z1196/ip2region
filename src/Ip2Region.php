@@ -249,33 +249,31 @@ class Ip2Region
      */
     private function detectProjectRoot()
     {
-        $isProduction = strpos(__DIR__, 'vendor' . DIRECTORY_SEPARATOR) !== false;
-
+        // 检查是否在 vendor 目录下（通过反射获取实际文件路径）
+        $reflection = new ReflectionClass($this);
+        $actualPath = dirname($reflection->getFileName());
+        $isProduction = strpos($actualPath, 'vendor' . DIRECTORY_SEPARATOR) !== false;
+        
         if ($isProduction) {
-            // 正式模式：如果在 vendor 目录下，需要找到项目根目录
-            // 从 vendor/package/src 向上3级到项目根目录
-            $projectRoot = dirname(__DIR__, 3);
-
+            // 正式模式：vendor/package/src 向上4级才是项目根目录
+            // vendor/package/src -> package -> vendor -> project_root
+            $projectRoot = dirname($actualPath, 4);
+            
             // 验证找到的根目录是否正确（包含 composer.json）
             if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
-                // 如果向上3级不对，尝试向上4级（vendor/package/src 的情况）
-                $projectRoot = dirname(__DIR__, 4);
-
-                if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
-                    die('错误：无法找到项目根目录，请确保在正确的 Composer 项目中使用此库');
-                }
+                die('错误：无法找到项目根目录，请确保在正确的 Composer 项目中使用此库');
             }
-
+            
             return $projectRoot;
         } else {
             // 开发模式：当前目录或上级目录
             $projectRoot = file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'composer.json') ? __DIR__ : dirname(__DIR__);
-
+            
             // 验证找到的根目录是否正确（包含 composer.json）
             if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
                 $projectRoot = dirname($projectRoot);
             }
-
+            
             return $projectRoot;
         }
     }
