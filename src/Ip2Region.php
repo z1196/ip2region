@@ -101,7 +101,6 @@ class Ip2Region
                 mkdir(self::$cacheDir, 0755, true);
             }
         }
-
     }
 
     /**
@@ -212,7 +211,7 @@ class Ip2Region
 
         $fileSize = filesize($cacheFile);
         $minSize = $version === 'v4' ? 10 * 1024 * 1024 : 100 * 1024 * 1024;
-        
+
         // 快速大小检查
         if ($fileSize < $minSize) {
             return false;
@@ -250,14 +249,34 @@ class Ip2Region
      */
     private function detectProjectRoot()
     {
-        $isProduction = strpos(__DIR__, 'zoujingli/ip2region') !== false;
-        
+        $isProduction = strpos(__DIR__, 'vendor' . DIRECTORY_SEPARATOR) !== false;
+
         if ($isProduction) {
-            // 正式模式：从 zoujingli/ip2region 向上3级到项目根目录
-            return dirname(__DIR__, 3);
+            // 正式模式：如果在 vendor 目录下，需要找到项目根目录
+            // 从 vendor/package/src 向上3级到项目根目录
+            $projectRoot = dirname(__DIR__, 3);
+
+            // 验证找到的根目录是否正确（包含 composer.json）
+            if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
+                // 如果向上3级不对，尝试向上4级（vendor/package/src 的情况）
+                $projectRoot = dirname(__DIR__, 4);
+
+                if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
+                    die('错误：无法找到项目根目录，请确保在正确的 Composer 项目中使用此库');
+                }
+            }
+
+            return $projectRoot;
         } else {
             // 开发模式：当前目录或上级目录
-            return file_exists(__DIR__ . '/composer.json') ? __DIR__ : dirname(__DIR__);
+            $projectRoot = file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'composer.json') ? __DIR__ : dirname(__DIR__);
+
+            // 验证找到的根目录是否正确（包含 composer.json）
+            if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
+                $projectRoot = dirname($projectRoot);
+            }
+
+            return $projectRoot;
         }
     }
 
@@ -281,6 +300,8 @@ class Ip2Region
 
         // 检查项目根目录的 vendor/bin/ip2data/ 目录
         $downloadedFile = $projectRoot . '/vendor/bin/ip2data/ip2region_' . $version . '.xdb';
+
+
         if (file_exists($downloadedFile)) {
             self::$$staticVar = $downloadedFile;
             return $downloadedFile;
@@ -363,8 +384,10 @@ class Ip2Region
             return \ip2region\xdb\Searcher::newWithFileOnly($ipVersion, $file);
         } catch (\Exception $e) {
             // 如果是数据库文件相关的错误，直接传递原始错误信息
-            if (strpos($e->getMessage(), 'IPv6 查询需要下载') !== false ||
-                strpos($e->getMessage(), '未找到 IPv4 数据库文件') !== false) {
+            if (
+                strpos($e->getMessage(), 'IPv6 查询需要下载') !== false ||
+                strpos($e->getMessage(), '未找到 IPv4 数据库文件') !== false
+            ) {
                 throw $e;
             }
             throw new \Exception("创建 {$version} 查询器失败: " . $e->getMessage());
