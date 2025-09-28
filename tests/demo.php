@@ -6,7 +6,7 @@
  * 功能说明：
  * - 展示IP2Region库的基本使用方法
  * - 演示IPv4和IPv6地址查询功能
- * - 展示自动缓存机制和压缩文件处理
+ * - 展示多种缓存策略和数据库加载
  * - 性能测试和统计信息展示
  * 
  * 演示内容：
@@ -85,13 +85,12 @@ try {
         }
     }
 
-    echo "4. 自动缓存机制:\n";
-    $cacheStats = Ip2Region::getCacheStats();
-    echo "  缓存目录: {$cacheStats['cache_dir']}\n";
-    echo "  缓存文件数: {$cacheStats['cache_files']}\n";
-    echo "  总缓存大小: " . round($cacheStats['total_size'] / 1024 / 1024, 2) . "MB\n";
-    echo "  IPv4已缓存: " . ($cacheStats['v4_cached'] ? '是' : '否') . "\n";
-    echo "  IPv6已缓存: " . ($cacheStats['v6_cached'] ? '是' : '否') . "\n";
+    echo "4. 数据库加载状态:\n";
+    $dbInfo = $searcher->getDatabaseInfo();
+    echo "  IPv4已加载: " . ($dbInfo['v4_loaded'] ? '是' : '否') . "\n";
+    echo "  IPv6已加载: " . ($dbInfo['v6_loaded'] ? '是' : '否') . "\n";
+    echo "  自定义IPv4路径: " . ($dbInfo['custom_v4_path'] ?: '使用默认路径') . "\n";
+    echo "  自定义IPv6路径: " . ($dbInfo['custom_v6_path'] ?: '使用默认路径') . "\n";
 
     echo "\n5. 性能统计:\n";
     $stats = $searcher->getStats();

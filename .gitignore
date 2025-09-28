@@ -9,11 +9,6 @@
 /vendor/
 /composer.lock
 
-# 数据库文件（完整数据库文件，分片文件保留）
-/db/*.xdb
-/db/ip2region_v6.xdb.part*.gz
-/db/ip2region_v6.xdb.part*.zip
-
 # 下载的数据库文件
 /vendor/bin/ip2data/
 /vendor/bin/ip2database/
@@ -43,5 +38,3 @@ Thumbs.db
 # 备份文件
 *.bak
 *.backup
-
-/tools/*.xdb

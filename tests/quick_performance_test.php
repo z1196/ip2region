@@ -3,7 +3,7 @@
  * IP2Region 快速性能测试
  * 
  * 简化的性能测试，专注于核心性能指标
- * 测试自动缓存机制和压缩文件处理性能
+ * 测试多种缓存策略和数据库加载性能
  */
 
 require_once 'vendor/autoload.php';
@@ -65,20 +65,16 @@ if (PHP_OS_FAMILY === 'Linux' && is_readable('/proc/cpuinfo')) {
 
 echo "\n";
 
-// 清理缓存
-echo "清理缓存...\n";
-\Ip2Region::clearPersistentCache();
-\Ip2Region::clearCache();
-echo "缓存已清理\n\n";
+// 创建测试实例
+$searcher = new \Ip2Region();
+echo "测试环境已准备\n\n";
 
-// 显示缓存状态
-echo "缓存状态信息:\n";
-$cacheStats = \Ip2Region::getCacheStats();
-echo "  缓存目录: {$cacheStats['cache_dir']}\n";
-echo "  缓存文件数: {$cacheStats['cache_files']}\n";
-echo "  总缓存大小: " . round($cacheStats['total_size'] / 1024 / 1024, 2) . "MB\n";
-echo "  IPv4已缓存: " . ($cacheStats['v4_cached'] ? '是' : '否') . "\n";
-echo "  IPv6已缓存: " . ($cacheStats['v6_cached'] ? '是' : '否') . "\n\n";
+// 显示数据库状态
+echo "数据库状态信息:\n";
+$dbInfo = $searcher->getDatabaseInfo();
+echo "  IPv4已加载: " . ($dbInfo['v4_loaded'] ? '是' : '否') . "\n";
+echo "  IPv6已加载: " . ($dbInfo['v6_loaded'] ? '是' : '否') . "\n";
+echo "  缓存策略: " . $dbInfo['cache_policy'] . "\n\n";
 
 // 测试函数
 function testPerformance($name, $callback, $methodInfo = '') {
@@ -188,9 +184,11 @@ $loopTime = testPerformance("  循环查询(10000次)", function() use ($ip2regi
 // 6. 缓存清理测试
 echo "\n6. 缓存清理测试:\n";
 $clearTime = testPerformance("  清理所有缓存", function() {
-    \Ip2Region::clearCache();
-    return \Ip2Region::clearPersistentCache();
-}, "Ip2Region::clearCache() + clearPersistentCache()");
+    // 性能监控测试
+    $searcher = new \Ip2Region();
+    $stats = $searcher->getStats();
+    return $stats;
+}, "getStats() 性能监控");
 
 // 7. 内存使用统计
 echo "\n7. 内存使用统计:\n";
@@ -231,8 +229,8 @@ echo "  10个IP: {$qps10} QPS\n";
 echo "  10000个IP: {$qps10000} QPS\n";
 echo "  10000次循环: {$qps10000Loop} QPS\n";
 
-echo "\n缓存管理性能:\n";
-echo "  清理缓存: {$clearTime}ms (Ip2Region::clearCache() + clearPersistentCache())\n";
+echo "\n性能监控:\n";
+echo "  性能监控: {$clearTime}ms (getStats() 性能监控)\n";
 
 // 9. 测试环境总结
 echo "\n9. 测试环境总结:\n";
@@ -244,13 +242,12 @@ echo "内存限制: " . ini_get('memory_limit') . "\n";
 echo "最终内存使用: " . $memory['current'] . "\n";
 echo "峰值内存使用: " . $memory['peak'] . "\n";
 
-// 显示最终缓存状态
-$finalCacheStats = \Ip2Region::getCacheStats();
-echo "最终缓存状态:\n";
-echo "  缓存文件数: {$finalCacheStats['cache_files']}\n";
-echo "  总缓存大小: " . round($finalCacheStats['total_size'] / 1024 / 1024, 2) . "MB\n";
-echo "  IPv4已缓存: " . ($finalCacheStats['v4_cached'] ? '是' : '否') . "\n";
-echo "  IPv6已缓存: " . ($finalCacheStats['v6_cached'] ? '是' : '否') . "\n";
+// 显示最终数据库状态
+$finalDbInfo = $searcher->getDatabaseInfo();
+echo "最终数据库状态:\n";
+echo "  IPv4已加载: " . ($finalDbInfo['v4_loaded'] ? '是' : '否') . "\n";
+echo "  IPv6已加载: " . ($finalDbInfo['v6_loaded'] ? '是' : '否') . "\n";
+echo "  缓存策略: " . $finalDbInfo['cache_policy'] . "\n";
 
 // 计算性能评分
 $performanceScore = 0;

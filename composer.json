@@ -2,7 +2,7 @@
   "type": "library",
   "name": "zoujingli/ip2region",
   "homepage": "https://github.com/zoujingli/Ip2Region",
-  "description": "ip2region v3.0 for PHP - 企业级 IP 地理位置查询库，支持 IPv4 和 IPv6，自动缓存，零依赖，开箱即用",
+  "description": "ip2region v3.0 for PHP - 企业级 IP 地理位置查询库，支持 IPv4 和 IPv6，多种缓存策略，零依赖，开箱即用",
   "license": "Apache-2.0",
   "authors": [
     {
@@ -26,8 +26,8 @@
     "ipv6",
     "php",
     "composer",
-    "压缩数据库",
-    "自动压缩",
+    "缓存策略",
+    "智能加载",
     "高性能",
     "企业级",
     "零依赖"
@@ -54,11 +54,9 @@
     "download": "php bin/ip2down download all",
     "download:v4": "php bin/ip2down download v4",
     "download:v6": "php bin/ip2down download v6",
-    "compress": "php tools/compress_db.php vendor/bin/ip2data/ip2region_v4.xdb gzip",
     "performance": "php tests/quick_performance_test.php",
-    "cache:clear": "php -r \"require 'vendor/autoload.php'; \\Ip2Region::clearCache(); echo 'Cache cleared successfully' . PHP_EOL;\"",
-    "cache:stats": "php -r \"require 'vendor/autoload.php'; \\$stats = \\Ip2Region::getCacheStats(); echo 'Cache Directory: ' . \\$stats['cache_dir'] . PHP_EOL; echo 'Cache Files: ' . \\$stats['cache_files'] . PHP_EOL; echo 'Total Size: ' . round(\\$stats['total_size'] / 1024 / 1024, 2) . ' MB' . PHP_EOL;\"",
-    "version": "php -r \"require 'vendor/autoload.php'; echo 'Ip2Region Version: 3.0.3' . PHP_EOL;\""
+    "stats": "php -r \"require 'vendor/autoload.php'; \\$searcher = new \\Ip2Region(); \\$stats = \\$searcher->getStats(); echo 'Memory Usage: ' . round(\\$stats['memory_usage'] / 1024 / 1024, 2) . ' MB' . PHP_EOL; echo 'Cache Policy: ' . \\$stats['cache_policy'] . PHP_EOL; echo 'IPv4 Loaded: ' . (\\$stats['v4_loaded'] ? 'Yes' : 'No') . PHP_EOL; echo 'IPv6 Loaded: ' . (\\$stats['v6_loaded'] ? 'Yes' : 'No') . PHP_EOL;\"",
+    "version": "php -r \"require 'vendor/autoload.php'; echo 'Ip2Region Version: 3.0.5' . PHP_EOL;\""
   },
   "config": {
     "optimize-autoloader": true,

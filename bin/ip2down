@@ -11,7 +11,7 @@
  * - 帮助：./vendor/bin/ip2down help
  * 
  * @author Anyon <zoujingli@qq.com>
- * @version 3.0.3
+ * @version 3.0.5
  */
 
 // 环境检查
@@ -260,7 +260,7 @@ class DatabaseDownloader
         echo "命令:\n";
         echo "  download [v4|v6|all]  下载数据库文件\n";
         echo "  list                  列出已下载文件\n";
-        echo "  clear                 清除缓存文件\n";
+        echo "  clear                 清除下载的数据库文件\n";
         echo "  test                  测试数据库功能\n";
         echo "  help                  显示帮助信息\n";
     }
@@ -329,14 +329,11 @@ class DatabaseDownloader
 
     private function clear()
     {
-        echo "正在清除缓存文件...\n";
-
-        \Ip2Region::clearPersistentCache();
-        echo "✅ 持久化缓存已清除\n";
-
+        echo "正在清除下载的数据库文件...\n";
 
         $count = $this->manager->clearCache();
-        echo "✅ 临时文件已清除 ($count 个文件)\n";
+        echo "✅ 下载的数据库文件已清除 ($count 个文件)\n";
+        echo "ℹ️  注意：内置数据库文件不会被清除\n";
     }
 
     private function test()
