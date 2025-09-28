@@ -207,7 +207,23 @@ composer require zoujingli/ip2region:^3.0
 
 # 查看已下载的文件
 ./vendor/bin/ip2down list
+
+# 测试数据库功能
+./vendor/bin/ip2down test
+
+# 清除下载的数据库文件
+./vendor/bin/ip2down clear
 ```
+
+> **💡 开发环境提示**：
+> 如果在开发环境中遇到 `./vendor/bin/ip2down: No such file or directory` 错误，可以使用以下命令：
+> ```bash
+> # 方法1：直接使用 PHP 运行
+> php bin/ip2down download v6
+> 
+> # 方法2：创建符号链接
+> ln -sf ../../bin/ip2down vendor/bin/ip2down
+> ```
 
 **方法二：手动下载**
 

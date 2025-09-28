@@ -200,9 +200,22 @@ class DatabaseManager
     public function clearCache()
     {
         $count = 0;
+        
+        // 清理下载的数据库文件
+        foreach ($this->config as $ver => $config) {
+            $filePath = $this->dbDir . '/' . $config['file'];
+            if (file_exists($filePath)) {
+                if (unlink($filePath)) {
+                    $count++;
+                }
+            }
+        }
+        
+        // 清理临时文件
         foreach (glob($this->dbDir . '/*.tmp') as $file) {
             if (unlink($file)) $count++;
         }
+        
         return $count;
     }
 
