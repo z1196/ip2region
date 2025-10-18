@@ -70,7 +70,7 @@ class Searcher
      * @example
      * ```php
      * $searcher = Searcher::newWithFileOnly(4, '/path/to/ipv4.xdb');
-     * $result = $searcher->search('8.8.8.8');
+     * $result = $searcher->search('61.142.118.231');
      * ```
      */
     public static function newWithFileOnly($version, $dbFile)
@@ -95,7 +95,7 @@ class Searcher
      * @example
      * ```php
      * $searcher = Searcher::newWithVectorIndex(4, '/path/to/ipv4.xdb', $vectorIndex);
-     * $result = $searcher->search('8.8.8.8');
+     * $result = $searcher->search('61.142.118.231');
      * ```
      */
     public static function newWithVectorIndex($version, $dbFile, $vIndex)
@@ -118,7 +118,7 @@ class Searcher
      * @example
      * ```php
      * $searcher = Searcher::newWithBuffer(4, $contentBuffer);
-     * $result = $searcher->search('8.8.8.8');
+     * $result = $searcher->search('61.142.118.231');
      * ```
      */
     public static function newWithBuffer($version, $cBuff)
@@ -180,7 +180,7 @@ class Searcher
      * @example
      * ```php
      * $searcher = Searcher::newWithFileOnly(4, '/path/to/ipv4.xdb');
-     * $region = $searcher->search('8.8.8.8');
+     * $region = $searcher->search('61.142.118.231');
      * echo $region; // 输出：美国|0|0|Level3
      * ```
      */
@@ -207,7 +207,7 @@ class Searcher
      * @example
      * ```php
      * $searcher = Searcher::newWithFileOnly(4, '/path/to/ipv4.xdb');
-     * $ipBytes = inet_pton('8.8.8.8');
+     * $ipBytes = inet_pton('61.142.118.231');
      * $region = $searcher->searchByBytes($ipBytes);
      * echo $region; // 输出：美国|0|0|Level3
      * ```
@@ -352,7 +352,7 @@ class Searcher
      * @example
      * ```php
      * $searcher = Searcher::newWithFileOnly(4, '/path/to/ipv4.xdb');
-     * $searcher->search('8.8.8.8');
+     * $searcher->search('61.142.118.231');
      * echo "IO次数: " . $searcher->getIOCount();
      * ```
      */
@@ -391,7 +391,7 @@ class Searcher
      * @example
      * ```php
      * $searcher = Searcher::newWithFileOnly(4, '/path/to/ipv4.xdb');
-     * $searcher->search('8.8.8.8');
+     * $searcher->search('61.142.118.231');
      * $searcher->close(); // 关闭文件句柄
      * ```
      */

@@ -105,7 +105,7 @@ class IPv6
      * @example
      * ```php
      * $ipv6 = IPv6::default();
-     * $ip = inet_pton('2001:4860:4860::8888');
+     * $ip = inet_pton('2400:3200::1');
      * $buff = "some data" . $ip . "more data";
      * $result = $ipv6->ipSubCompare($ip, $buff, 9);
      * ```
@@ -151,7 +151,7 @@ class IPv6
      * 
      * @example
      * ```php
-     * $bytes = IPv6::parse('2001:4860:4860::8888'); // 返回16字节二进制数据
+     * $bytes = IPv6::parse('2400:3200::1'); // 返回16字节二进制数据
      * $invalid = IPv6::parse('invalid-ip'); // 返回 null
      * ```
      */
@@ -171,7 +171,7 @@ class IPv6
      * 
      * @example
      * ```php
-     * $long = IPv6::toLong('2001:4860:4860::8888'); // 返回长整型值
+     * $long = IPv6::toLong('2400:3200::1'); // 返回长整型值
      * $invalid = IPv6::toLong('invalid-ip'); // 返回 null
      * ```
      */
@@ -218,8 +218,8 @@ class IPv6
      * 
      * @example
      * ```php
-     * var_dump(IPv6::isValid('2001:4860:4860::8888')); // 输出：true
-     * var_dump(IPv6::isValid('8.8.8.8')); // 输出：false
+     * var_dump(IPv6::isValid('2400:3200::1')); // 输出：true
+     * var_dump(IPv6::isValid('61.142.118.231')); // 输出：false
      * var_dump(IPv6::isValid('invalid-ip')); // 输出：false
      * ```
      */

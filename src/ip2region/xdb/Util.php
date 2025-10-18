@@ -74,8 +74,8 @@ class Util
      * 
      * @example
      * ```php
-     * $ipv4Bytes = Util::parseIP('8.8.8.8'); // 返回4字节二进制数据
-     * $ipv6Bytes = Util::parseIP('2001:4860:4860::8888'); // 返回16字节二进制数据
+     * $ipv4Bytes = Util::parseIP('61.142.118.231'); // 返回4字节二进制数据
+     * $ipv6Bytes = Util::parseIP('2400:3200::1'); // 返回16字节二进制数据
      * $invalid = Util::parseIP('invalid-ip'); // 返回 null
      * ```
      */
@@ -104,8 +104,8 @@ class Util
      * 
      * @example
      * ```php
-     * var_dump(Util::isIPv4('8.8.8.8')); // 输出：true
-     * var_dump(Util::isIPv4('2001:4860:4860::8888')); // 输出：false
+     * var_dump(Util::isIPv4('61.142.118.231')); // 输出：true
+     * var_dump(Util::isIPv4('2400:3200::1')); // 输出：false
      * var_dump(Util::isIPv4('invalid-ip')); // 输出：false
      * ```
      */
@@ -124,8 +124,8 @@ class Util
      * 
      * @example
      * ```php
-     * var_dump(Util::isIPv6('2001:4860:4860::8888')); // 输出：true
-     * var_dump(Util::isIPv6('8.8.8.8')); // 输出：false
+     * var_dump(Util::isIPv6('2400:3200::1')); // 输出：true
+     * var_dump(Util::isIPv6('61.142.118.231')); // 输出：false
      * var_dump(Util::isIPv6('invalid-ip')); // 输出：false
      * ```
      */
@@ -144,8 +144,8 @@ class Util
      * 
      * @example
      * ```php
-     * echo Util::getIPVersion('8.8.8.8'); // 输出：4
-     * echo Util::getIPVersion('2001:4860:4860::8888'); // 输出：6
+     * echo Util::getIPVersion('61.142.118.231'); // 输出：4
+     * echo Util::getIPVersion('2400:3200::1'); // 输出：6
      * echo Util::getIPVersion('invalid-ip'); // 输出：0
      * ```
      */
@@ -803,7 +803,7 @@ class Util
      * 
      * @example
      * ```php
-     * $ip1 = inet_pton('8.8.8.8');
+     * $ip1 = inet_pton('61.142.118.231');
      * $buff = "some data" . $ip1 . "more data";
      * $result = Util::ipSubCompare($ip1, $buff, 9); // 比较IP地址
      * ```
@@ -834,7 +834,7 @@ class Util
      * 
      * @example
      * ```php
-     * $ip1 = inet_pton('8.8.8.8');
+     * $ip1 = inet_pton('61.142.118.231');
      * $ip2 = inet_pton('8.8.8.9');
      * $result = Util::ipCompare($ip1, $ip2); // 返回：-1
      * ```

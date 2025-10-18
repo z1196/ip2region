@@ -367,8 +367,8 @@ class DatabaseDownloader
     {
         echo "测试 IPv4 查询:\n";
         try {
-            $result = $searcher->simple('8.8.8.8');
-            echo "  8.8.8.8 -> $result\n";
+            $result = $searcher->simple('61.142.118.231');
+            echo "  61.142.118.231 -> $result\n";
         } catch (Exception $e) {
             echo "  ❌ IPv4 查询失败: " . $e->getMessage() . "\n";
             throw $e;
@@ -379,8 +379,8 @@ class DatabaseDownloader
     {
         echo "测试 IPv6 查询:\n";
         try {
-            $result = $searcher->simple('2001:4860:4860::8888');
-            echo "  2001:4860:4860::8888 -> $result\n";
+            $result = $searcher->simple('2400:3200::1');
+            echo "  2400:3200::1 -> $result\n";
         } catch (Exception $e) {
             echo "  ❌ IPv6 查询失败: " . $e->getMessage() . "\n";
             throw $e;

@@ -119,8 +119,8 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * echo $searcher->getIpVersion('8.8.8.8'); // 输出: v4
-     * echo $searcher->getIpVersion('2001:4860:4860::8888'); // 输出: v6
+     * echo $searcher->getIpVersion('61.142.118.231'); // 输出: v4
+     * echo $searcher->getIpVersion('2400:3200::1'); // 输出: v6
      * ```
      */
     private function getIpVersion($ip)
@@ -147,8 +147,8 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $v4Searcher = $searcher->getSearcher('8.8.8.8'); // 返回IPv4搜索引擎
-     * $v6Searcher = $searcher->getSearcher('2001:4860:4860::8888'); // 返回IPv6搜索引擎
+     * $v4Searcher = $searcher->getSearcher('61.142.118.231'); // 返回IPv4搜索引擎
+     * $v6Searcher = $searcher->getSearcher('2400:3200::1'); // 返回IPv6搜索引擎
      * ```
      */
     private function getSearcher($ip)
@@ -328,7 +328,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $result = $searcher->memorySearch('8.8.8.8');
+     * $result = $searcher->memorySearch('61.142.118.231');
      * echo $result['region']; // 输出：美国【Level3】
      * ```
      */
@@ -352,7 +352,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $ips = array('8.8.8.8', '1.1.1.1', '114.114.114.114');
+     * $ips = array('61.142.118.231', '1.1.1.1', '114.114.114.114');
      * $results = $searcher->batchSearch($ips);
      * foreach ($results as $ip => $region) {
      *     echo "$ip => $region\n";
@@ -386,7 +386,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $result = $searcher->searchIPv6('2001:4860:4860::8888');
+     * $result = $searcher->searchIPv6('2400:3200::1');
      * echo $result; // 输出：美国加利福尼亚州圣克拉拉【专线用户】
      * ```
      */
@@ -420,7 +420,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $info = $searcher->getIpInfo('8.8.8.8');
+     * $info = $searcher->getIpInfo('61.142.118.231');
      * echo $info['country']; // 输出：美国
      * echo $info['isp']; // 输出：Level3
      * ```
@@ -455,8 +455,8 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * var_dump($searcher->isIPv6('2001:4860:4860::8888')); // 输出：true
-     * var_dump($searcher->isIPv6('8.8.8.8')); // 输出：false
+     * var_dump($searcher->isIPv6('2400:3200::1')); // 输出：true
+     * var_dump($searcher->isIPv6('61.142.118.231')); // 输出：false
      * ```
      */
     private function isIPv6($ip)
@@ -484,7 +484,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $searcher->memorySearch('8.8.8.8'); // 触发IPv4搜索引擎加载
+     * $searcher->memorySearch('61.142.118.231'); // 触发IPv4搜索引擎加载
      * $stats = $searcher->getStats();
      * echo "内存使用: " . $stats['memory_usage'] . " 字节\n";
      * echo "IPv4已加载: " . ($stats['v4_loaded'] ? '是' : '否') . "\n";
@@ -588,7 +588,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * echo $searcher->simple('8.8.8.8'); // 输出：美国【Level3】
+     * echo $searcher->simple('61.142.118.231'); // 输出：美国【Level3】
      * echo $searcher->simple('114.114.114.114'); // 输出：中国|江苏省|南京市【114DNS】
      * ```
      */
@@ -612,7 +612,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * echo $searcher->search('8.8.8.8'); // 输出：美国|0|0|Level3
+     * echo $searcher->search('61.142.118.231'); // 输出：美国|0|0|Level3
      * echo $searcher->search('114.114.114.114'); // 输出：中国|江苏省|南京市|0
      * ```
      */
@@ -635,7 +635,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $result = $searcher->binarySearch('8.8.8.8');
+     * $result = $searcher->binarySearch('61.142.118.231');
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
      */
@@ -659,7 +659,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $ipv4Bytes = inet_pton('8.8.8.8'); // 4字节二进制
+     * $ipv4Bytes = inet_pton('61.142.118.231'); // 4字节二进制
      * $result = $searcher->searchByBytes($ipv4Bytes);
      * echo $result; // 输出：美国|0|0|Level3
      * ```
@@ -695,7 +695,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $result = $searcher->btreeSearch('8.8.8.8');
+     * $result = $searcher->btreeSearch('61.142.118.231');
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
      */
@@ -716,8 +716,8 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * echo $searcher->getProtocolVersion('8.8.8.8'); // 输出：v4
-     * echo $searcher->getProtocolVersion('2001:4860:4860::8888'); // 输出：v6
+     * echo $searcher->getProtocolVersion('61.142.118.231'); // 输出：v4
+     * echo $searcher->getProtocolVersion('2400:3200::1'); // 输出：v6
      * echo $searcher->getProtocolVersion('invalid-ip'); // 输出：unknown
      * ```
      */
@@ -748,7 +748,7 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * $searcher->memorySearch('8.8.8.8'); // 触发IPv4查询
+     * $searcher->memorySearch('61.142.118.231'); // 触发IPv4查询
      * $ioCount = $searcher->getIOCount();
      * echo "总IO次数: " . $ioCount['total_io_count'] . "\n";
      * ```

@@ -104,7 +104,7 @@ class IPv4
      * @example
      * ```php
      * $ipv4 = IPv4::default();
-     * $ip1 = inet_pton('8.8.8.8');
+     * $ip1 = inet_pton('61.142.118.231');
      * $buff = "some data" . $ip1 . "more data";
      * $result = $ipv4->ipSubCompare($ip1, $buff, 9);
      * ```
@@ -164,7 +164,7 @@ class IPv4
      *
      * @example
      * ```php
-     * $bytes = IPv4::parse('8.8.8.8'); // 返回4字节二进制数据
+     * $bytes = IPv4::parse('61.142.118.231'); // 返回4字节二进制数据
      * $invalid = IPv4::parse('invalid-ip'); // 返回 null
      * ```
      */
@@ -184,7 +184,7 @@ class IPv4
      *
      * @example
      * ```php
-     * $long = IPv4::toLong('8.8.8.8'); // 返回：134744072
+     * $long = IPv4::toLong('61.142.118.231'); // 返回：134744072
      * $invalid = IPv4::toLong('invalid-ip'); // 返回 null
      * ```
      */
@@ -208,7 +208,7 @@ class IPv4
      *
      * @example
      * ```php
-     * $ip = IPv4::toStr(134744072); // 返回："8.8.8.8"
+     * $ip = IPv4::toStr(134744072); // 返回："61.142.118.231"
      * ```
      */
     public static function toStr($long)
@@ -228,8 +228,8 @@ class IPv4
      *
      * @example
      * ```php
-     * var_dump(IPv4::isValid('8.8.8.8')); // 输出：true
-     * var_dump(IPv4::isValid('2001:4860:4860::8888')); // 输出：false
+     * var_dump(IPv4::isValid('61.142.118.231')); // 输出：true
+     * var_dump(IPv4::isValid('2400:3200::1')); // 输出：false
      * var_dump(IPv4::isValid('invalid-ip')); // 输出：false
      * ```
      */
