@@ -75,16 +75,16 @@ class DatabaseManager
     private $dbDir;
     private $config = array(
         'v4' => array(
-            'url' => 'https://cdn.jsdelivr.net/gh/lionsoul2014/ip2region@master/data/ip2region_v4.xdb',
+            'url' => 'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb',
             'file' => 'ip2region_v4.xdb',
             'desc' => 'IPv4 数据库',
             'minSize' => 10 * 1024 * 1024
         ),
         'v6' => array(
-            'url' => 'https://gitee.com/lionsoul/ip2region/raw/master/data/ip2region_v6.xdb?lfs=1',
+            'url' => 'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb',
             'file' => 'ip2region_v6.xdb',
             'desc' => 'IPv6 数据库',
-            'minSize' => 100 * 1024 * 1024
+            'minSize' => 30 * 1024 * 1024  // 30MB，实际文件约 34.6MB
         )
     );
 

@@ -26,7 +26,7 @@
  * 数据库优先级：
  * 1. 自定义数据库路径（通过构造函数指定）
  * 2. 下载的数据库文件（vendor/bin/ip2data/ 目录）
- * 3. 内置数据库文件（db/ 目录）
+ * 3. 内置数据库文件（db/ 目录，IPv4 和 IPv6）
  *
  * @author Anyon <zoujingli@qq.com>
  * @version 3.0
@@ -176,7 +176,7 @@ class Ip2Region
      * 按照优先级顺序查找数据库文件：
      * 1. 自动路径：自定义数据库路径（通过构造函数指定）
      * 2. vendor 目录：下载的数据库文件（vendor/bin/ip2data/ 目录）
-     * 3. 默认路径：内置数据库文件（仅IPv4）
+     * 3. 默认路径：内置数据库文件（db/ 目录）
      *
      * @param string $version 版本标识，'v4' 表示IPv4，'v6' 表示IPv6
      * @return string 返回可用的数据库文件路径
@@ -242,12 +242,10 @@ class Ip2Region
             }
         }
 
-        // 3. 默认路径：对于 IPv4，尝试使用内置数据库文件
-        if ($version === 'v4') {
-            $dbFile = dirname(__DIR__) . '/db/ip2region_v4.xdb';
-            if (file_exists($dbFile)) {
-                return $dbFile;
-            }
+        // 3. 默认路径：检查 db/ 目录下的数据库文件
+        $dbFile = dirname(__DIR__) . '/db/ip2region_' . $version . '.xdb';
+        if (file_exists($dbFile)) {
+            return $dbFile;
         }
 
         // 4. 抛出异常，提示用户下载数据库
@@ -844,6 +842,19 @@ class Ip2Region
             'custom_v4_path' => $this->dbPathV4,
             'custom_v6_path' => $this->dbPathV6
         );
+
+        // 获取实际使用的数据库文件路径
+        try {
+            $info['v4_path'] = $this->getDbFile('v4');
+        } catch (\Exception $e) {
+            $info['v4_path'] = null;
+        }
+        
+        try {
+            $info['v6_path'] = $this->getDbFile('v6');
+        } catch (\Exception $e) {
+            $info['v6_path'] = null;
+        }
 
         if ($this->searcherV4 !== null) {
             $info['v4_version'] = $this->searcherV4->getIPVersion();
