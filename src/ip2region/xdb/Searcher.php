@@ -36,16 +36,16 @@ namespace ip2region\xdb;
  */
 class Searcher
 {
-    /** @var IPv4|IPv6 IP版本对象（IPv4或IPv6） */
+    /** @var IPv4|IPv6 IP版本对象 */
     private $version;
 
     /** @var resource|null XDB文件句柄 */
     private $handle = null;
 
-    /** @var int IO操作计数 */
+    /** @var int IO操作计数器 */
     private $ioCount = 0;
 
-    /** @var string|null 向量索引二进制字符串 */
+    /** @var string|null 向量索引二进制字符串，使用字符串解码比基于数组的Map更快 */
     private $vectorIndex = null;
 
     /** @var string|null XDB内容缓冲区 */
@@ -172,16 +172,19 @@ class Searcher
      *
      * 在XDB数据库中搜索指定IP地址对应的地区信息
      * 使用优化的二分查找算法进行快速定位
+     * 
+     * @Note 重要提示：IP地址必须是人类可读的IP地址字符串
+     * 不要使用 parseIP 返回的打包二进制字符串
      *
-     * @param string $ip IP地址字符串
-     * @return string|null 返回地区信息字符串，未找到返回 null
-     * @throws \Exception 当搜索过程中发生错误时抛出异常
+     * @param string $ip IP地址字符串（人类可读格式，如 "61.142.118.231"）
+     * @return string 返回地区信息字符串，未找到返回空字符串
+     * @throws \Exception 当IP地址无效或搜索过程中发生错误时抛出异常
      *
      * @example
      * ```php
      * $searcher = Searcher::newWithFileOnly(4, '/path/to/ipv4.xdb');
      * $region = $searcher->search('61.142.118.231');
-     * echo $region; // 输出：美国|0|0|Level3
+     * echo $region; // 输出：中国|广东省|中山市|电信
      * ```
      */
     public function search($ip)
@@ -197,19 +200,19 @@ class Searcher
     /**
      * 根据二进制IP字节查找地区信息
      *
-     * 使用二进制格式的IP地址进行搜索，避免重复解析
-     * 这是search方法的底层实现，提供更高的性能
+     * 使用 parseIP 返回的二进制格式IP地址进行搜索
+     * 这是 search 方法的底层实现，避免重复解析，提供更高的性能
      *
-     * @param string $ipBytes 二进制格式的IP地址字节
-     * @return string|null 返回地区信息字符串，未找到返回 null
+     * @param string $ipBytes 二进制格式的IP地址字节（由 parseIP 或 inet_pton 返回）
+     * @return string 返回地区信息字符串，未找到返回空字符串
      * @throws \Exception 当IP版本不匹配或搜索过程中发生错误时抛出异常
      *
      * @example
      * ```php
      * $searcher = Searcher::newWithFileOnly(4, '/path/to/ipv4.xdb');
-     * $ipBytes = inet_pton('61.142.118.231');
+     * $ipBytes = Util::parseIP('61.142.118.231');
      * $region = $searcher->searchByBytes($ipBytes);
-     * echo $region; // 输出：美国|0|0|Level3
+     * echo $region; // 输出：中国|广东省|中山市|电信
      * ```
      */
     public function searchByBytes($ipBytes)
@@ -235,39 +238,24 @@ class Searcher
         } else {
             // read the vector index block
             $buff = $this->read(Util::HeaderInfoLength + $idx, 8);
-            if ($buff === null) {
-                throw new \Exception("failed to read vector index at {$idx}");
-            }
-
             $sPtr = Util::le_getUint32($buff, 0);
             $ePtr = Util::le_getUint32($buff, 4);
         }
 
         // printf("sPtr: %d, ePtr: %d\n", $sPtr, $ePtr);
-        $bytes = strlen($ipBytes);
-        $dBytes = $bytes << 1;
+        [$bytes, $dBytes] = [strlen($ipBytes), strlen($ipBytes) << 1];
 
         // binary search the segment index to get the region info
         $idxSize = $this->version->segmentIndexSize;
-        $dataLen = 0;
-        $dataPtr = null;
-        $l = 0;
-        $h = ($ePtr - $sPtr) / $idxSize;
+        [$dataLen, $dataPtr, $l, $h] = [0, 0, 0, ($ePtr - $sPtr) / $idxSize];
         while ($l <= $h) {
             $m = ($l + $h) >> 1;
             $p = $sPtr + $m * $idxSize;
 
             // read the segment index
             $buff = $this->read($p, $idxSize);
-            if ($buff == null) {
-                throw new \Exception("failed to read segment index with ptr={$p}");
-            }
 
-            // printf("l=%d, h=%d, sip=%s, eip=%s\n", 
-            //     $l, $h,
-            //     Util::ipToString(strrev(substr($buff, 0, 4))),
-            //     Util::ipToString(strrev(substr($buff, 4, 4)))
-            // );
+            // compare the segment index
             if ($this->version->ipSubCompare($ipBytes, $buff, 0) < 0) {
                 $h = $m - 1;
             } else if ($this->version->ipSubCompare($ipBytes, $buff, $bytes) > 0) {
@@ -279,20 +267,14 @@ class Searcher
             }
         }
 
-        // match nothing interception.
-        // @TODO: could this even be a case ?
+        // empty match interception.
         // printf("dataLen: %d, dataPtr: %d\n", $dataLen, $dataPtr);
-        if ($dataPtr == null) {
-            return null;
+        if ($dataLen == 0) {
+            return "";
         }
 
         // load and return the region data
-        $buff = $this->read($dataPtr, $dataLen);
-        if ($buff == null) {
-            return null;
-        }
-
-        return $buff;
+        return $this->read($dataPtr, $dataLen);
     }
 
     // ============================================================================
@@ -300,14 +282,15 @@ class Searcher
     // ============================================================================
 
     /**
-     * 从指定偏移量读取指定长度的字节
+     * 从指定索引读取指定字节数
      *
      * 根据当前模式（文件句柄或内容缓冲区）读取数据
-     * 优先使用内容缓冲区，提高读取性能
+     * 优先检查内存缓冲区，提高读取性能
      *
-     * @param int $offset 起始偏移量
+     * @param int $offset 起始偏移量（索引位置）
      * @param int $len 要读取的字节长度
-     * @return string|null 返回读取的数据，读取失败返回 null
+     * @return string 返回读取的数据
+     * @throws \Exception 当读取失败时抛出异常
      *
      * @example
      * ```php
@@ -321,23 +304,22 @@ class Searcher
             return substr($this->contentBuff, $offset, $len);
         }
 
-        // handle zero length reads
-        if ($len <= 0) {
-            return '';
-        }
-
         // read from the file
         $r = fseek($this->handle, $offset);
         if ($r == -1) {
-            return null;
-        }
-
-        $buff = fread($this->handle, $len);
-        if ($buff === false) {
-            return null;
+            throw new \Exception("failed to fseek to {$offset}");
         }
 
         $this->ioCount++;
+        $buff = fread($this->handle, $len);
+        if ($buff === false) {
+            throw new \Exception("failed to fread from {$len}");
+        }
+
+        if (strlen($buff) != $len) {
+            throw new \Exception("incomplete read: read bytes should be {$len}");
+        }
+
         return $buff;
     }
 
@@ -362,21 +344,22 @@ class Searcher
     }
 
     /**
-     * 获取IP版本
+     * 获取IP版本对象
      *
-     * 返回当前搜索引擎实例的IP版本
+     * 返回当前搜索引擎实例的IP版本对象
      *
-     * @return int 返回IP版本（4或6）
+     * @return IPv4|IPv6 返回IP版本对象（IPv4或IPv6）
      *
      * @example
      * ```php
      * $searcher = Searcher::newWithFileOnly(4, '/path/to/ipv4.xdb');
-     * echo "IP版本: " . $searcher->getIPVersion(); // 输出：4
+     * $version = $searcher->getIPVersion();
+     * echo "IP版本: " . $version->id; // 输出：4
      * ```
      */
     public function getIPVersion()
     {
-        return $this->version->id;
+        return $this->version;
     }
 
 
@@ -399,7 +382,6 @@ class Searcher
     {
         if ($this->handle != null) {
             fclose($this->handle);
-            $this->handle = null;
         }
     }
 }

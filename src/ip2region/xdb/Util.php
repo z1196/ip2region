@@ -64,13 +64,13 @@ class Util
     // ============================================================================
 
     /**
-     * 解析IP地址并返回字节格式
+     * 解析指定的IP地址并返回其字节格式
      * 
-     * 将字符串格式的IP地址转换为二进制字节格式
+     * 将字符串格式的IP地址转换为二进制字节格式（打包字节）
      * 支持IPv4和IPv6地址的解析
      * 
      * @param string $ipString 要解析的IP地址字符串
-     * @return string|null 返回二进制字节格式的IP地址，解析失败返回 null
+     * @return string|null 成功返回打包的二进制字节，失败返回 null
      * 
      * @example
      * ```php
@@ -738,10 +738,10 @@ class Util
     // ============================================================================
 
     /**
-     * 从字节缓冲区读取4字节无符号整数（小端序）
+     * 从字节缓冲区解码一个4字节长整数（小端序）
      * 
      * 从指定索引开始读取4个字节，按小端序转换为32位无符号整数
-     * 在32位系统上自动处理有符号到无符号的转换
+     * 在32位操作系统上自动将有符号整数转换为无符号整数
      * 
      * @param string $b 字节缓冲区
      * @param int $idx 起始索引
@@ -767,7 +767,7 @@ class Util
     }
 
     /**
-     * 从字节缓冲区读取2字节无符号整数（小端序）
+     * 从字节缓冲区读取一个2字节整数（小端序）
      * 
      * 从指定索引开始读取2个字节，按小端序转换为16位无符号整数
      * 
@@ -791,7 +791,7 @@ class Util
     // ============================================================================
 
     /**
-     * 比较IP地址字节与缓冲区中的字节
+     * 比较两个IP字节（parseIP 返回的打包字符串）
      * 
      * 将IP地址字节与缓冲区中指定偏移量的字节进行比较
      * 用于在二进制数据中查找匹配的IP地址
@@ -799,7 +799,7 @@ class Util
      * @param string $ip1 要比较的IP地址字节
      * @param string $buff 字节缓冲区
      * @param int $offset 缓冲区中的起始偏移量
-     * @return int 返回比较结果：-1表示ip1小于buff中的字节，0表示相等，1表示ip1大于buff中的字节
+     * @return int 返回 -1 (ip1 < ip2), 0 (ip1 == ip2) 或 1 (ip1 > ip2)
      * 
      * @example
      * ```php
@@ -823,14 +823,14 @@ class Util
     }
 
     /**
-     * 比较两个IP地址字节
+     * 比较两个IP字节
      * 
      * 直接比较两个IP地址的字节表示
      * 用于IP地址的排序和查找
      * 
      * @param string $ip1 第一个IP地址字节
      * @param string $ip2 第二个IP地址字节
-     * @return int 返回比较结果：-1表示ip1小于ip2，0表示相等，1表示ip1大于ip2
+     * @return int 返回 -1 (ip1 < ip2), 0 (ip1 == ip2) 或 1 (ip1 > ip2)
      * 
      * @example
      * ```php
@@ -849,5 +849,433 @@ class Util
         } else {
             return 0;
         }
+    }
+
+    // ============================================================================
+    // IP地址转换方法
+    // ============================================================================
+
+    /**
+     * 将IP字节转换为字符串
+     * 
+     * 将二进制格式的IP地址转换为可读的字符串格式
+     * 支持IPv4和IPv6地址
+     * 
+     * @param string $ipBytes 二进制格式的IP地址字节
+     * @return string 返回可读的IP地址字符串，无效IP返回 '<invalid-ip-bytes>'
+     * 
+     * @example
+     * ```php
+     * $ipBytes = inet_pton('61.142.118.231');
+     * echo Util::ipToString($ipBytes); // 输出：61.142.118.231
+     * ```
+     */
+    public static function ipToString($ipBytes)
+    {
+        $l = strlen($ipBytes);
+        return ($l == 4 || $l == 16) ? inet_ntop($ipBytes) : '<invalid-ip-bytes>';
+    }
+
+    // ============================================================================
+    // 版本解析方法
+    // ============================================================================
+
+    /**
+     * 从名称解析IP版本
+     * 
+     * 根据版本名称（如 "V4", "IPv4", "V6", "IPv6"）返回对应的版本对象
+     * 
+     * @param string $ver_name 版本名称
+     * @return IPv4|IPv6 返回对应的版本对象
+     * @throws \Exception 当版本名称无效时抛出异常
+     * 
+     * @example
+     * ```php
+     * $version = Util::versionFromName('IPv4'); // 返回 IPv4::default()
+     * $version = Util::versionFromName('V6'); // 返回 IPv6::default()
+     * ```
+     */
+    public static function versionFromName($ver_name)
+    {
+        $name = strtoupper($ver_name);
+        if ($name == "V4" || $name == "IPV4") {
+            return IPv4::default();
+        } else if ($name == "V6" || $name == "IPV6") {
+            return IPv6::default();
+        } else {
+            throw new \Exception("invalid verstion name `{$ver_name}`");
+        }
+    }
+
+    /**
+     * 从头部信息解析IP版本
+     * 
+     * 根据XDB文件头部信息返回对应的版本对象
+     * 支持2.0和3.0两种结构版本
+     * 
+     * @param array $header 头部信息数组
+     * @return IPv4|IPv6 返回对应的版本对象
+     * @throws \Exception 当版本信息无效时抛出异常
+     * 
+     * @example
+     * ```php
+     * $header = Util::loadHeaderFromFile('/path/to/ipv4.xdb');
+     * $version = Util::versionFromHeader($header);
+     * ```
+     */
+    public static function versionFromHeader($header)
+    {
+        // Old structure 2.0 with IPv4 supports ONLY
+        if ($header['version'] == self::Structure_20) {
+            return IPv4::default();
+        }
+
+        // structure 3.0 after IPv6 supporting
+        if ($header['version'] != self::Structure_30) {
+            throw new \Exception("invalid xdb structure version `{$header['version']}`");
+        }
+
+        if ($header['ipVersion'] == self::IPv4VersionNo) {
+            return IPv4::default();
+        } else if ($header['ipVersion'] == self::IPv6VersionNo) {
+            return IPv6::default();
+        } else {
+            throw new \Exception("invalid ip version number `{$header['ipVersion']}`");
+        }
+    }
+
+    // ============================================================================
+    // 字节数组格式化方法
+    // ============================================================================
+
+    /**
+     * 将字节数组转换为格式化字符串
+     * 
+     * 将二进制字节数组转换为空格分隔的数字字符串，用于调试
+     * 
+     * @param string $buff 字节缓冲区
+     * @param int $offset 起始偏移量
+     * @param int $length 要转换的字节长度
+     * @return string 返回格式化的字符串表示
+     * 
+     * @example
+     * ```php
+     * $bytes = "\x01\x02\x03\x04";
+     * echo Util::bytesToString($bytes, 0, 4); // 输出：[1 2 3 4]
+     * ```
+     */
+    public static function bytesToString($buff, $offset, $length)
+    {
+        $sb = [];
+        for ($i = 0; $i < $length; $i++) {
+            $sb[] = ord($buff[$offset + $i]) & 0xFF;
+        }
+        return '[' . implode(' ', $sb) . ']';
+    }
+
+    // ============================================================================
+    // XDB文件验证和加载方法
+    // ============================================================================
+
+    /**
+     * 验证当前搜索引擎是否可用于搜索指定的XDB文件
+     * 
+     * 为什么需要这个检查？
+     * 未来XDB实现的新特性可能导致当前搜索引擎无法正常工作
+     * 
+     * @Note 注意：只需在服务启动时检查一次
+     * 或使用另一个进程（如命令）检查一次以确认适用性
+     * 
+     * @param resource $handle 文件句柄
+     * @return string|null 一切正常返回 null，否则返回错误字符串
+     * 
+     * @example
+     * ```php
+     * $handle = fopen('/path/to/ipv4.xdb', 'r');
+     * $error = Util::verify($handle);
+     * if ($error !== null) {
+     *     echo "验证失败: {$error}";
+     * }
+     * fclose($handle);
+     * ```
+     */
+    public static function verify($handle)
+    {
+        // load the header
+        $header = self::loadHeader($handle);
+        if ($header == null) {
+            return 'failed to load the header';
+        }
+
+        // get the runtime ptr bytes
+        $runtimePtrBytes = 0;
+        if ($header['version'] == self::Structure_20) {
+            $runtimePtrBytes = 4;
+        } else if ($header['version'] == self::Structure_30) {
+            $runtimePtrBytes = $header['runtimePtrBytes'];
+        } else {
+            return "invalid structure version `{$header['version']}`";
+        }
+
+        // 1, confirm the xdb file size
+        // to ensure that the maximum file pointer does not overflow
+        $stat = fstat($handle);
+        if ($stat == false) {
+            return 'failed to stat the xdb file';
+        }
+
+        $maxFilePtr = (1 << ($runtimePtrBytes * 8)) - 1;
+        // print_r([$stat['size'], $maxFilePtr]);
+        if ($stat['size'] > $maxFilePtr) {
+            return "xdb file exceeds the maximum supported bytes: {$maxFilePtr}";
+        }
+
+        return null;
+    }
+
+    /**
+     * 从文件验证XDB文件
+     * 
+     * 打开并验证指定的XDB文件是否可用
+     * 
+     * @param string $dbFile XDB文件路径
+     * @return string|null 返回错误信息字符串，验证通过返回 null
+     * 
+     * @example
+     * ```php
+     * $error = Util::verifyFromFile('/path/to/ipv4.xdb');
+     * if ($error !== null) {
+     *     echo "验证失败: {$error}";
+     * }
+     * ```
+     */
+    public static function verifyFromFile($dbFile)
+    {
+        $handle = fopen($dbFile, 'r');
+        if ($handle === false) {
+            return null;
+        }
+
+        $r = self::verify($handle);
+        fclose($handle);
+        return $r;
+    }
+
+    /**
+     * 从文件句柄加载头部信息
+     * 
+     * 从XDB文件句柄读取并解析头部信息
+     * 
+     * @param resource $handle 文件句柄
+     * @return array|null 返回头部信息数组，失败返回 null
+     * 
+     * @example
+     * ```php
+     * $handle = fopen('/path/to/ipv4.xdb', 'r');
+     * $header = Util::loadHeader($handle);
+     * print_r($header);
+     * fclose($handle);
+     * ```
+     */
+    public static function loadHeader($handle)
+    {
+        if (fseek($handle, 0) == -1) {
+            return null;
+        }
+
+        $buff = fread($handle, self::HeaderInfoLength);
+        if ($buff === false) {
+            return null;
+        }
+
+        // read bytes length checking
+        if (strlen($buff) != self::HeaderInfoLength) {
+            return null;
+        }
+
+        // return the decoded header info
+        return array(
+            'version'         => self::le_getUint16($buff, 0),
+            'indexPolicy'     => self::le_getUint16($buff, 2),
+            'createdAt'       => self::le_getUint32($buff, 4),
+            'startIndexPtr'   => self::le_getUint32($buff, 8),
+            'endIndexPtr'     => self::le_getUint32($buff, 12),
+            'ipVersion'       => self::le_getUint16($buff, 16),
+            'runtimePtrBytes' => self::le_getUint16($buff, 18)
+        );
+    }
+
+    /**
+     * 从文件路径加载头部信息
+     * 
+     * 打开XDB文件并读取头部信息
+     * 
+     * @param string $dbFile XDB文件路径
+     * @return array|null 返回头部信息数组，失败返回 null
+     * 
+     * @example
+     * ```php
+     * $header = Util::loadHeaderFromFile('/path/to/ipv4.xdb');
+     * print_r($header);
+     * ```
+     */
+    public static function loadHeaderFromFile($dbFile)
+    {
+        $handle = fopen($dbFile, 'r');
+        if ($handle === false) {
+            return null;
+        }
+
+        $header = self::loadHeader($handle);
+        fclose($handle);
+        return $header;
+    }
+
+    /**
+     * 从文件句柄加载向量索引
+     * 
+     * 从XDB文件句柄读取向量索引数据
+     * 
+     * @param resource $handle 文件句柄
+     * @return string|null 返回向量索引二进制数据，失败返回 null
+     * 
+     * @example
+     * ```php
+     * $handle = fopen('/path/to/ipv4.xdb', 'r');
+     * $vIndex = Util::loadVectorIndex($handle);
+     * fclose($handle);
+     * ```
+     */
+    public static function loadVectorIndex($handle)
+    {
+        if (fseek($handle, self::HeaderInfoLength) == -1) {
+            return null;
+        }
+
+        $rLen = self::VectorIndexRows * self::VectorIndexCols * self::VectorIndexSize;
+        $buff = fread($handle, $rLen);
+        if ($buff === false) {
+            return null;
+        }
+
+        if (strlen($buff) != $rLen) {
+            return null;
+        }
+
+        return $buff;
+    }
+
+    /**
+     * 从文件路径加载向量索引
+     * 
+     * 打开XDB文件并读取向量索引数据
+     * 
+     * @param string $dbFile XDB文件路径
+     * @return string|null 返回向量索引二进制数据，失败返回 null
+     * 
+     * @example
+     * ```php
+     * $vIndex = Util::loadVectorIndexFromFile('/path/to/ipv4.xdb');
+     * $searcher = Searcher::newWithVectorIndex(4, '/path/to/ipv4.xdb', $vIndex);
+     * ```
+     */
+    public static function loadVectorIndexFromFile($dbFile)
+    {
+        $handle = fopen($dbFile, 'r');
+        if ($handle === false) {
+            return null;
+        }
+
+        $vIndex = self::loadVectorIndex($handle);
+        fclose($handle);
+        return $vIndex;
+    }
+
+    /**
+     * 从文件句柄加载XDB内容
+     * 
+     * 从XDB文件句柄读取整个文件内容到内存
+     * 
+     * @param resource $handle 文件句柄
+     * @return string|null 返回文件内容，失败返回 null
+     * 
+     * @example
+     * ```php
+     * $handle = fopen('/path/to/ipv4.xdb', 'r');
+     * $content = Util::loadContent($handle);
+     * fclose($handle);
+     * ```
+     */
+    public static function loadContent($handle)
+    {
+        if (fseek($handle, 0, SEEK_END) == -1) {
+            return null;
+        }
+
+        $size = ftell($handle);
+        if ($size === false) {
+            return null;
+        }
+
+        // seek to the head for reading
+        if (fseek($handle, 0) == -1) {
+            return null;
+        }
+
+        $buff = fread($handle, $size);
+        if ($buff === false) {
+            return null;
+        }
+
+        // read length checking
+        if (strlen($buff) != $size) {
+            return null;
+        }
+
+        return $buff;
+    }
+
+    /**
+     * 从文件路径加载XDB内容
+     * 
+     * 读取整个XDB文件内容到内存
+     * 
+     * @param string $dbFile XDB文件路径
+     * @return string|null 返回文件内容，失败返回 null
+     * 
+     * @example
+     * ```php
+     * $content = Util::loadContentFromFile('/path/to/ipv4.xdb');
+     * $searcher = Searcher::newWithBuffer(4, $content);
+     * ```
+     */
+    public static function loadContentFromFile($dbFile)
+    {
+        $str = file_get_contents($dbFile, false);
+        if ($str === false) {
+            return null;
+        } else {
+            return $str;
+        }
+    }
+
+    /**
+     * 获取当前时间戳（毫秒）
+     * 
+     * 返回当前时间的毫秒级时间戳
+     * 
+     * @return float 返回毫秒级时间戳
+     * 
+     * @example
+     * ```php
+     * $start = Util::now();
+     * // 执行一些操作
+     * $elapsed = Util::now() - $start;
+     * echo "耗时: {$elapsed} 毫秒";
+     * ```
+     */
+    public static function now()
+    {
+        return (microtime(true) * 1000);
     }
 }
