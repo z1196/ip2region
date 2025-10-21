@@ -329,7 +329,10 @@ class Ip2Region
      * ```php
      * $searcher = new Ip2Region();
      * $result = $searcher->memorySearch('61.142.118.231');
-     * echo $result['region']; // 输出：美国【Level3】
+     * echo $result['region']; // 输出：中国|广东省|中山市|电信
+     * 
+     * $result = $searcher->memorySearch('8.8.8.8');
+     * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
      */
     public function memorySearch($ip)
@@ -347,7 +350,7 @@ class Ip2Region
      *
      * @param array $ips 要查询的IP地址数组
      * @return array 返回以IP地址为键，地区信息为值的关联数组
-     *  查询失败的IP地址对应的值为 null
+     *  查询失败的IP地址对应的值为空字符串 ""
      *
      * @example
      * ```php
@@ -365,9 +368,9 @@ class Ip2Region
         foreach ($ips as $ip) {
             try {
                 $result = $this->memorySearch($ip);
-                $results[$ip] = isset($result['region']) ? $result['region'] : null;
+                $results[$ip] = isset($result['region']) ? $result['region'] : '';
             } catch (Exception $e) {
-                $results[$ip] = null;
+                $results[$ip] = '';
             }
         }
         return $results;
@@ -380,14 +383,14 @@ class Ip2Region
      * 包含IPv6地址格式验证，确保只处理有效的IPv6地址
      *
      * @param string $ip 要查询的IPv6地址
-     * @return string|null 返回地理位置字符串，查询失败返回 null
+     * @return string 返回地理位置字符串，查询失败返回空字符串 ""
      * @throws \Exception 当不是有效的IPv6地址时抛出异常
      *
      * @example
      * ```php
      * $searcher = new Ip2Region();
      * $result = $searcher->searchIPv6('2400:3200::1');
-     * echo $result; // 输出：美国加利福尼亚州圣克拉拉【专线用户】
+     * echo $result; // 输出：中国|浙江省|杭州市|专线用户
      * ```
      */
     public function searchIPv6($ip)
@@ -396,7 +399,7 @@ class Ip2Region
             throw new \Exception("不是有效的IPv6地址: {$ip}");
         }
         $result = $this->memorySearch($ip);
-        return isset($result['region']) ? $result['region'] : null;
+        return isset($result['region']) ? $result['region'] : '';
     }
 
     /**
@@ -421,6 +424,11 @@ class Ip2Region
      * ```php
      * $searcher = new Ip2Region();
      * $info = $searcher->getIpInfo('61.142.118.231');
+     * echo $info['country']; // 输出：中国
+     * echo $info['region']; // 输出：广东省
+     * echo $info['city']; // 输出：电信
+     * 
+     * $info = $searcher->getIpInfo('8.8.8.8');
      * echo $info['country']; // 输出：美国
      * echo $info['isp']; // 输出：Level3
      * ```
@@ -588,8 +596,9 @@ class Ip2Region
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * echo $searcher->simple('61.142.118.231'); // 输出：美国【Level3】
-     * echo $searcher->simple('114.114.114.114'); // 输出：中国|江苏省|南京市【114DNS】
+     * echo $searcher->simple('61.142.118.231'); // 输出：中国广东省中山市【电信】
+     * echo $searcher->simple('114.114.114.114'); // 输出：中国江苏省南京市
+     * echo $searcher->simple('8.8.8.8'); // 输出：美国【Level3】
      * ```
      */
     public function simple($ip)
@@ -607,19 +616,20 @@ class Ip2Region
      * 与 memorySearch 方法功能相同，但返回格式更简洁
      *
      * @param string $ip 要查询的IP地址（支持IPv4和IPv6）
-     * @return string|null 返回原始地理位置字符串，查询失败返回 null
+     * @return string 返回原始地理位置字符串，查询失败返回空字符串 ""
      *
      * @example
      * ```php
      * $searcher = new Ip2Region();
-     * echo $searcher->search('61.142.118.231'); // 输出：美国|0|0|Level3
+     * echo $searcher->search('61.142.118.231'); // 输出：中国|广东省|中山市|电信
      * echo $searcher->search('114.114.114.114'); // 输出：中国|江苏省|南京市|0
+     * echo $searcher->search('0.0.0.0'); // 输出：""（空字符串）
      * ```
      */
     public function search($ip)
     {
         $result = $this->memorySearch($ip);
-        return isset($result['region']) ? $result['region'] : null;
+        return isset($result['region']) ? $result['region'] : '';
     }
 
     /**
@@ -636,6 +646,9 @@ class Ip2Region
      * ```php
      * $searcher = new Ip2Region();
      * $result = $searcher->binarySearch('61.142.118.231');
+     * echo $result['region']; // 输出：中国|广东省|中山市|电信
+     * 
+     * $result = $searcher->binarySearch('8.8.8.8');
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
      */
@@ -653,13 +666,17 @@ class Ip2Region
      * @param string $ipBytes 二进制格式的IP地址
      *           - IPv4: 4字节二进制字符串
      *           - IPv6: 16字节二进制字符串
-     * @return string|null 返回地理位置字符串，查询失败返回 null
+     * @return string 返回地理位置字符串，查询失败返回空字符串 ""
      * @throws \Exception 当IP版本无法确定或搜索引擎创建失败时抛出异常
      *
      * @example
      * ```php
      * $searcher = new Ip2Region();
      * $ipv4Bytes = inet_pton('61.142.118.231'); // 4字节二进制
+     * $result = $searcher->searchByBytes($ipv4Bytes);
+     * echo $result; // 输出：中国|广东省|中山市|电信
+     * 
+     * $ipv4Bytes = inet_pton('8.8.8.8'); // 4字节二进制
      * $result = $searcher->searchByBytes($ipv4Bytes);
      * echo $result; // 输出：美国|0|0|Level3
      * ```
@@ -696,6 +713,9 @@ class Ip2Region
      * ```php
      * $searcher = new Ip2Region();
      * $result = $searcher->btreeSearch('61.142.118.231');
+     * echo $result['region']; // 输出：中国|广东省|中山市|电信
+     * 
+     * $result = $searcher->btreeSearch('8.8.8.8');
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
      */
