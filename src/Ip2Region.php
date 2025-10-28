@@ -194,33 +194,37 @@ class Ip2Region
         // 通过反射获取实际文件路径
         $reflection = new ReflectionClass($this);
         $actualPath = dirname($reflection->getFileName());
-        
+
         // 检查是否在 PHAR 环境中
         if (strpos($actualPath, 'phar://') === 0) {
             // PHAR 环境：无法确定项目根目录，返回 null
             // 在 PHAR 环境中，只能使用内置数据库文件
             return null;
         }
-        
+
         // 只有两种情况：
         // 1. vendor/zoujingli/ip2region/src (Composer 安装) - 最具体
         // 2. src (开发模式) - 最通用
-        
+
         if (strpos($actualPath, 'vendor' . DIRECTORY_SEPARATOR . 'zoujingli' . DIRECTORY_SEPARATOR . 'ip2region' . DIRECTORY_SEPARATOR . 'src') !== false) {
             // 情况1：vendor/zoujingli/ip2region/src
             // 需要往上4级：vendor/zoujingli/ip2region/src -> zoujingli/ip2region -> vendor -> project_root
-            $projectRoot = dirname($actualPath, 4);
+            // PHP 5.4 兼容：不支持 dirname 的第二个参数，使用循环代替
+            $projectRoot = $actualPath;
+            for ($i = 0; $i < 4; $i++) {
+                $projectRoot = dirname($projectRoot);
+            }
         } else {
             // 情况2：src (开发模式)
             // 向上1级就是项目根目录
             $projectRoot = dirname($actualPath);
         }
-        
+
         // 验证找到的根目录是否正确（包含 composer.json）
         if (!file_exists($projectRoot . DIRECTORY_SEPARATOR . 'composer.json')) {
             die('错误：无法找到项目根目录，请确保在正确的 Composer 项目中使用此库');
         }
-        
+
         return $projectRoot;
     }
 
@@ -330,7 +334,7 @@ class Ip2Region
      * $searcher = new Ip2Region();
      * $result = $searcher->memorySearch('61.142.118.231');
      * echo $result['region']; // 输出：中国|广东省|中山市|电信
-     * 
+     *
      * $result = $searcher->memorySearch('8.8.8.8');
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
@@ -427,7 +431,7 @@ class Ip2Region
      * echo $info['country']; // 输出：中国
      * echo $info['region']; // 输出：广东省
      * echo $info['city']; // 输出：电信
-     * 
+     *
      * $info = $searcher->getIpInfo('8.8.8.8');
      * echo $info['country']; // 输出：美国
      * echo $info['isp']; // 输出：Level3
@@ -581,9 +585,6 @@ class Ip2Region
     }
 
 
-
-
-
     /**
      * 简单查询方法（兼容旧版本）
      *
@@ -647,7 +648,7 @@ class Ip2Region
      * $searcher = new Ip2Region();
      * $result = $searcher->binarySearch('61.142.118.231');
      * echo $result['region']; // 输出：中国|广东省|中山市|电信
-     * 
+     *
      * $result = $searcher->binarySearch('8.8.8.8');
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
@@ -675,7 +676,7 @@ class Ip2Region
      * $ipv4Bytes = inet_pton('61.142.118.231'); // 4字节二进制
      * $result = $searcher->searchByBytes($ipv4Bytes);
      * echo $result; // 输出：中国|广东省|中山市|电信
-     * 
+     *
      * $ipv4Bytes = inet_pton('8.8.8.8'); // 4字节二进制
      * $result = $searcher->searchByBytes($ipv4Bytes);
      * echo $result; // 输出：美国|0|0|Level3
@@ -714,7 +715,7 @@ class Ip2Region
      * $searcher = new Ip2Region();
      * $result = $searcher->btreeSearch('61.142.118.231');
      * echo $result['region']; // 输出：中国|广东省|中山市|电信
-     * 
+     *
      * $result = $searcher->btreeSearch('8.8.8.8');
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
@@ -869,7 +870,7 @@ class Ip2Region
         } catch (\Exception $e) {
             $info['v4_path'] = null;
         }
-        
+
         try {
             $info['v6_path'] = $this->getDbFile('v6');
         } catch (\Exception $e) {

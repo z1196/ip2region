@@ -1,7 +1,7 @@
 <?php
 /**
  * IP2Region 快速性能测试
- * 
+ *
  * 简化的性能测试，专注于核心性能指标
  * 测试多种缓存策略和数据库加载性能
  */
@@ -23,7 +23,9 @@ echo "当前时间: " . date('Y-m-d H:i:s') . "\n";
 // 获取系统信息
 if (function_exists('sys_getloadavg')) {
     $load = sys_getloadavg();
-    echo "系统负载: " . implode(', ', array_map(function($v) { return round($v, 2); }, $load)) . "\n";
+    echo "系统负载: " . implode(', ', array_map(function ($v) {
+            return round($v, 2);
+        }, $load)) . "\n";
 }
 
 // 获取内存使用情况
@@ -77,7 +79,8 @@ echo "  IPv6已加载: " . ($dbInfo['v6_loaded'] ? '是' : '否') . "\n";
 echo "  缓存策略: " . $dbInfo['cache_policy'] . "\n\n";
 
 // 测试函数
-function testPerformance($name, $callback, $methodInfo = '') {
+function testPerformance($name, $callback, $methodInfo = '')
+{
     $start = microtime(true);
     $result = $callback();
     $time = round((microtime(true) - $start) * 1000, 2);
@@ -91,12 +94,12 @@ function testPerformance($name, $callback, $methodInfo = '') {
 
 // 1. 首次加载测试
 echo "1. 首次加载测试:\n";
-$firstLoadV4 = testPerformance("  IPv4首次加载", function() {
+$firstLoadV4 = testPerformance("  IPv4首次加载", function () {
     $ip2region = new \Ip2Region();
     return $ip2region->simple('61.142.118.231');
 }, "new Ip2Region() + simple()");
 
-$firstLoadV6 = testPerformance("  IPv6首次加载", function() {
+$firstLoadV6 = testPerformance("  IPv6首次加载", function () {
     try {
         $ip2region = new \Ip2Region();
         return $ip2region->simple('2001:4860:4860::8888');
@@ -107,12 +110,12 @@ $firstLoadV6 = testPerformance("  IPv6首次加载", function() {
 
 // 2. 缓存命中测试
 echo "\n2. 缓存命中测试:\n";
-$cacheHitV4 = testPerformance("  IPv4缓存命中", function() {
+$cacheHitV4 = testPerformance("  IPv4缓存命中", function () {
     $ip2region = new \Ip2Region();
     return $ip2region->simple('8.8.8.8');
 }, "new Ip2Region() + simple() (使用缓存)");
 
-$cacheHitV6 = testPerformance("  IPv6缓存命中", function() {
+$cacheHitV6 = testPerformance("  IPv6缓存命中", function () {
     try {
         $ip2region = new \Ip2Region();
         return $ip2region->simple('2400:3200::1');
@@ -124,24 +127,24 @@ $cacheHitV6 = testPerformance("  IPv6缓存命中", function() {
 // 3. 查询方法对比
 echo "\n3. 查询方法对比:\n";
 $ip2region = new \Ip2Region();
-$simpleTime = testPerformance("  simple方法", function() use ($ip2region) {
+$simpleTime = testPerformance("  simple方法", function () use ($ip2region) {
     return $ip2region->simple('61.142.118.231');
 }, "ip2region->simple()");
 
-$searchTime = testPerformance("  search方法", function() use ($ip2region) {
+$searchTime = testPerformance("  search方法", function () use ($ip2region) {
     return $ip2region->search('61.142.118.231');
 }, "ip2region->search()");
 
-$memoryTime = testPerformance("  memorySearch方法", function() use ($ip2region) {
+$memoryTime = testPerformance("  memorySearch方法", function () use ($ip2region) {
     return $ip2region->memorySearch('61.142.118.231');
 }, "ip2region->memorySearch()");
 
 // 4. 批量查询测试
 echo "\n4. 批量查询测试:\n";
-$batchTime = testPerformance("  批量查询(10个IP)", function() use ($ip2region) {
+$batchTime = testPerformance("  批量查询(10个IP)", function () use ($ip2region) {
     try {
-        $ips = ['61.142.118.231', '8.8.8.8', '114.114.114.114', '1.1.1.1', '223.5.5.5', 
-                '2001:4860:4860::8888', '2400:3200::1', '2606:4700:4700::1111', '180.76.76.76', '202.96.134.133'];
+        $ips = ['61.142.118.231', '8.8.8.8', '114.114.114.114', '1.1.1.1', '223.5.5.5',
+            '2001:4860:4860::8888', '2400:3200::1', '2606:4700:4700::1111', '180.76.76.76', '202.96.134.133'];
         return $ip2region->batchSearch($ips);
     } catch (Exception $e) {
         return "批量查询包含IPv6地址，需要下载IPv6数据库: " . $e->getMessage();
@@ -168,13 +171,13 @@ for ($i = 0; $i < 10000; $i++) {
     }
 }
 
-$batch10000Time = testPerformance("  批量查询(10000个IP)", function() use ($ip2region, $testIps) {
+$batch10000Time = testPerformance("  批量查询(10000个IP)", function () use ($ip2region, $testIps) {
     return $ip2region->batchSearch($testIps);
 }, "ip2region->batchSearch(10000个IP)");
 
 // 5. 循环查询测试
 echo "\n5. 循环查询测试:\n";
-$loopTime = testPerformance("  循环查询(10000次)", function() use ($ip2region) {
+$loopTime = testPerformance("  循环查询(10000次)", function () use ($ip2region) {
     for ($i = 0; $i < 10000; $i++) {
         $ip2region->simple('61.142.118.231');
     }
@@ -183,7 +186,7 @@ $loopTime = testPerformance("  循环查询(10000次)", function() use ($ip2regi
 
 // 6. 缓存清理测试
 echo "\n6. 缓存清理测试:\n";
-$clearTime = testPerformance("  清理所有缓存", function() {
+$clearTime = testPerformance("  清理所有缓存", function () {
     // 性能监控测试
     $searcher = new \Ip2Region();
     $stats = $searcher->getStats();

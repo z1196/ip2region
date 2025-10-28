@@ -2,14 +2,14 @@
 <?php
 /**
  * ip2region 数据库下载管理工具 v3.0
- * 
+ *
  * 使用方式：
  * - 下载：./vendor/bin/ip2down download [v4|v6|all]
  * - 列表：./vendor/bin/ip2down list
  * - 清理：./vendor/bin/ip2down clear
  * - 测试：./vendor/bin/ip2down test
  * - 帮助：./vendor/bin/ip2down help
- * 
+ *
  * @author Anyon <zoujingli@qq.com>
  * @version 3.0.5
  */
@@ -21,7 +21,7 @@ if (php_sapi_name() !== 'cli') {
 
 /**
  * 统一的路径检测函数
- * 
+ *
  * @return array ['rootDir' => string, 'isProduction' => bool]
  */
 function detectProjectPath()
@@ -32,15 +32,19 @@ function detectProjectPath()
     if ($toolPath === 'Command line code' || strpos($toolPath, 'php') !== false) {
         $toolPath = __DIR__ . DIRECTORY_SEPARATOR . 'ip2down';
     }
-    
+
     // 只有两种情况：
     // 1. vendor/zoujingli/ip2region/bin/ip2down (Composer 安装) - 最具体
     // 2. bin/ip2down (开发模式) - 最通用
-    
+
     if (strpos($toolPath, 'vendor' . DIRECTORY_SEPARATOR . 'zoujingli' . DIRECTORY_SEPARATOR . 'ip2region' . DIRECTORY_SEPARATOR . 'bin') !== false) {
         // 情况1：vendor/zoujingli/ip2region/bin/ip2down
         // 需要往上5级：vendor/zoujingli/ip2region/bin -> zoujingli/ip2region -> vendor -> project_root
-        $rootDir = dirname($toolPath, 5);
+        // PHP 5.4 兼容：不支持 dirname 的第二个参数，使用循环代替
+        $rootDir = $toolPath;
+        for ($i = 0; $i < 5; $i++) {
+            $rootDir = dirname($rootDir);
+        }
         $isProduction = true;
     } else {
         // 情况2：bin/ip2down (开发模式)
@@ -73,27 +77,26 @@ require_once $autoloadFile;
 class DatabaseManager
 {
     private $dbDir;
-    private $config = array(
-        'v4' => array(
-            'url' => 'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb',
-            'file' => 'ip2region_v4.xdb',
-            'desc' => 'IPv4 数据库',
-            'minSize' => 10 * 1024 * 1024
-        ),
-        'v6' => array(
-            'url' => 'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb',
-            'file' => 'ip2region_v6.xdb',
-            'desc' => 'IPv6 数据库',
-            'minSize' => 30 * 1024 * 1024  // 30MB，实际文件约 34.6MB
-        )
-    );
+    private $config;
 
     public function __construct()
     {
+        $this->config = array(
+                'v4' => array(
+                        'url'     => 'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb',
+                        'file'    => 'ip2region_v4.xdb',
+                        'desc'    => 'IPv4 数据库',
+                        'minSize' => 10 * 1024 * 1024
+                ),
+                'v6' => array(
+                        'url'     => 'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb',
+                        'file'    => 'ip2region_v6.xdb',
+                        'desc'    => 'IPv6 数据库',
+                        'minSize' => 30 * 1024 * 1024  // 30MB，实际文件约 34.6MB
+                )
+        );
         $pathInfo = detectProjectPath();
-        $projectRoot = $pathInfo['rootDir'];
-
-        $this->dbDir = $projectRoot . '/vendor/bin/ip2data';
+        $this->dbDir = $pathInfo['rootDir'] . '/vendor/bin/ip2data';
         if (!is_dir($this->dbDir)) {
             mkdir($this->dbDir, 0755, true);
         }
@@ -126,7 +129,7 @@ class DatabaseManager
     private function downloadFile($url, $filePath, $minSize, $callback, $version)
     {
         $context = stream_context_create(array(
-            'http' => array('timeout' => 300)
+                'http' => array('timeout' => 300)
         ));
 
         $input = fopen($url, 'rb', false, $context);
@@ -187,10 +190,10 @@ class DatabaseManager
             $filePath = $this->dbDir . '/' . $config['file'];
             if (file_exists($filePath)) {
                 $files[] = array(
-                    'filename' => $config['file'],
-                    'type' => $ver === 'v4' ? 'IPv4' : 'IPv6',
-                    'size' => filesize($filePath),
-                    'modified' => filemtime($filePath)
+                        'filename' => $config['file'],
+                        'type'     => $ver === 'v4' ? 'IPv4' : 'IPv6',
+                        'size'     => filesize($filePath),
+                        'modified' => filemtime($filePath)
                 );
             }
         }
@@ -200,7 +203,7 @@ class DatabaseManager
     public function clearCache()
     {
         $count = 0;
-        
+
         // 清理下载的数据库文件
         foreach ($this->config as $ver => $config) {
             $filePath = $this->dbDir . '/' . $config['file'];
@@ -210,12 +213,12 @@ class DatabaseManager
                 }
             }
         }
-        
+
         // 清理临时文件
         foreach (glob($this->dbDir . '/*.tmp') as $file) {
             if (unlink($file)) $count++;
         }
-        
+
         return $count;
     }
 
