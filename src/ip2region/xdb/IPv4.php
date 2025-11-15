@@ -53,12 +53,12 @@ class IPv4
      *
      * @example
      * ```php
-     * $ipv4 = IPv4::make();
+     * $ipv4 = IPv4::default();
      * echo $ipv4->name; // 输出：IPv4
      * echo $ipv4->bytes; // 输出：4
      * ```
      */
-    public static function make()
+    public static function default()
     {
         if (self::$C == null) {
             // 14 = 4 + 4 + 2 + 4
@@ -103,7 +103,7 @@ class IPv4
      *
      * @example
      * ```php
-     * $ipv4 = IPv4::make();
+     * $ipv4 = IPv4::default();
      * $ip1 = inet_pton('61.142.118.231');
      * $buff = "some data" . $ip1 . "more data";
      * $result = $ipv4->ipSubCompare($ip1, $buff, 9);
@@ -138,7 +138,7 @@ class IPv4
      *
      * @example
      * ```php
-     * $ipv4 = IPv4::make();
+     * $ipv4 = IPv4::default();
      * echo $ipv4; // 输出：{id:4, name:IPv4, bytes:4, segmentIndexSize:14}
      * ```
      */

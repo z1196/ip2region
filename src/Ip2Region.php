@@ -209,11 +209,7 @@ class Ip2Region
         if (strpos($actualPath, 'vendor' . DIRECTORY_SEPARATOR . 'zoujingli' . DIRECTORY_SEPARATOR . 'ip2region' . DIRECTORY_SEPARATOR . 'src') !== false) {
             // 情况1：vendor/zoujingli/ip2region/src
             // 需要往上4级：vendor/zoujingli/ip2region/src -> zoujingli/ip2region -> vendor -> project_root
-            // PHP 5.4 兼容：不支持 dirname 的第二个参数，使用循环代替
-            $projectRoot = $actualPath;
-            for ($i = 0; $i < 4; $i++) {
-                $projectRoot = dirname($projectRoot);
-            }
+            $projectRoot = dirname($actualPath, 4);
         } else {
             // 情况2：src (开发模式)
             // 向上1级就是项目根目录

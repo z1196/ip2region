@@ -40,11 +40,7 @@ function detectProjectPath()
     if (strpos($toolPath, 'vendor' . DIRECTORY_SEPARATOR . 'zoujingli' . DIRECTORY_SEPARATOR . 'ip2region' . DIRECTORY_SEPARATOR . 'bin') !== false) {
         // 情况1：vendor/zoujingli/ip2region/bin/ip2down
         // 需要往上5级：vendor/zoujingli/ip2region/bin -> zoujingli/ip2region -> vendor -> project_root
-        // PHP 5.4 兼容：不支持 dirname 的第二个参数，使用循环代替
-        $rootDir = $toolPath;
-        for ($i = 0; $i < 5; $i++) {
-            $rootDir = dirname($rootDir);
-        }
+        $rootDir = dirname($toolPath, 5);
         $isProduction = true;
     } else {
         // 情况2：bin/ip2down (开发模式)

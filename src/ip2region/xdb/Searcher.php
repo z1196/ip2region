@@ -75,7 +75,7 @@ class Searcher
      */
     public static function newWithFileOnly($version, $dbFile)
     {
-        $self = $version === 4 ? IPv4::make() : IPv6::make();
+        $self = $version === 4 ? IPv4::default() : IPv6::default();
         return new self($self, $dbFile, null, null);
     }
 
@@ -100,7 +100,7 @@ class Searcher
      */
     public static function newWithVectorIndex($version, $dbFile, $vIndex)
     {
-        $versionObj = $version === 4 ? IPv4::make() : IPv6::make();
+        $versionObj = $version === 4 ? IPv4::default() : IPv6::default();
         return new self($versionObj, $dbFile, $vIndex, null);
     }
 
@@ -123,7 +123,7 @@ class Searcher
      */
     public static function newWithBuffer($version, $cBuff)
     {
-        $versionObj = $version === 4 ? IPv4::make() : IPv6::make();
+        $versionObj = $version === 4 ? IPv4::default() : IPv6::default();
         return new self($versionObj, null, null, $cBuff);
     }
 
@@ -145,7 +145,7 @@ class Searcher
      *
      * @example
      * ```php
-     * $searcher = new Searcher(IPv4::make(), '/path/to/ipv4.xdb');
+     * $searcher = new Searcher(IPv4::default(), '/path/to/ipv4.xdb');
      * ```
      */
     function __construct($version, $dbFile, $vectorIndex = null, $cBuff = null)

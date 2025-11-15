@@ -53,12 +53,12 @@ class IPv6
      *
      * @example
      * ```php
-     * $ipv6 = IPv6::make();
+     * $ipv6 = IPv6::default();
      * echo $ipv6->name; // 输出：IPv6
      * echo $ipv6->bytes; // 输出：16
      * ```
      */
-    public static function make()
+    public static function default()
     {
         if (self::$C == null) {
             // 38 = 16 + 16 + 2 + 4
@@ -104,7 +104,7 @@ class IPv6
      *
      * @example
      * ```php
-     * $ipv6 = IPv6::make();
+     * $ipv6 = IPv6::default();
      * $ip = inet_pton('2400:3200::1');
      * $buff = "some data" . $ip . "more data";
      * $result = $ipv6->ipSubCompare($ip, $buff, 9);
@@ -125,7 +125,7 @@ class IPv6
      *
      * @example
      * ```php
-     * $ipv6 = IPv6::make();
+     * $ipv6 = IPv6::default();
      * echo $ipv6; // 输出：{id:6, name:IPv6, bytes:16, segmentIndexSize:38}
      * ```
      */

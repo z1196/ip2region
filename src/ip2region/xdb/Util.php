@@ -891,17 +891,17 @@ class Util
      *
      * @example
      * ```php
-     * $version = Util::versionFromName('IPv4'); // 返回 IPv4::make()
-     * $version = Util::versionFromName('V6'); // 返回 IPv6::make()
+     * $version = Util::versionFromName('IPv4'); // 返回 IPv4::default()
+     * $version = Util::versionFromName('V6'); // 返回 IPv6::default()
      * ```
      */
     public static function versionFromName($ver_name)
     {
         $name = strtoupper($ver_name);
         if ($name == "V4" || $name == "IPV4") {
-            return IPv4::make();
+            return IPv4::default();
         } else if ($name == "V6" || $name == "IPV6") {
-            return IPv6::make();
+            return IPv6::default();
         } else {
             throw new \Exception("invalid verstion name `{$ver_name}`");
         }
@@ -927,7 +927,7 @@ class Util
     {
         // Old structure 2.0 with IPv4 supports ONLY
         if ($header['version'] == self::Structure_20) {
-            return IPv4::make();
+            return IPv4::default();
         }
 
         // structure 3.0 after IPv6 supporting
@@ -936,9 +936,9 @@ class Util
         }
 
         if ($header['ipVersion'] == self::IPv4VersionNo) {
-            return IPv4::make();
+            return IPv4::default();
         } else if ($header['ipVersion'] == self::IPv6VersionNo) {
-            return IPv6::make();
+            return IPv6::default();
         } else {
             throw new \Exception("invalid ip version number `{$header['ipVersion']}`");
         }
