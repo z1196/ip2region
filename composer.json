@@ -43,7 +43,7 @@
       "src/Ip2Region.php"
     ],
     "files": [
-      "function.php"
+      "src/common.php"
     ]
   },
   "scripts": {
