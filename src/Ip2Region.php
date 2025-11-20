@@ -441,12 +441,13 @@ class Ip2Region
         }
 
         $parts = explode('|', $result['region']);
+        // 数据格式：国家|省份|城市|ISP (4个字段)
         return array(
             'country'  => isset($parts[0]) ? $parts[0] : '',
-            'region'   => isset($parts[1]) ? $parts[1] : '',
-            'province' => isset($parts[2]) ? $parts[2] : '',
-            'city'     => isset($parts[3]) ? $parts[3] : '',
-            'isp'      => isset($parts[4]) ? $parts[4] : '',
+            'region'   => isset($parts[1]) ? $parts[1] : '', // 省份（兼容旧字段名）
+            'province' => isset($parts[1]) ? $parts[1] : '', // 省份
+            'city'     => isset($parts[2]) ? $parts[2] : '', // 城市
+            'isp'      => isset($parts[3]) ? $parts[3] : '', // ISP
             'ip'       => $ip,
             'version'  => $this->getIpVersion($ip)
         );
