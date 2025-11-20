@@ -406,18 +406,18 @@ class Ip2Region
      * 获取IP详细信息
      *
      * 查询IP地址并返回结构化的地理位置信息
-     * 将原始查询结果解析为包含国家、地区、省份、城市、ISP等信息的数组
+     * 将原始查询结果解析为包含国家、省份、城市、ISP等信息的数组
      *
      * @param string $ip 要查询的IP地址（支持IPv4和IPv6）
      * @return array|null 返回包含详细地理信息的数组，查询失败返回 null
      *      格式：[
      *        'country' => '国家',
-     *        'region' => '地区',
      *        'province' => '省份',
      *        'city' => '城市',
      *        'isp' => 'ISP服务商',
      *        'ip' => '原始IP地址',
-     *        'version' => 'IP版本(v4/v6)'
+     *        'version' => 'IP版本(v4/v6)',
+     *        'region' => '' // @deprecated 已弃用，原用于世界级区域，现已不再使用
      *      ]
      *
      * @example
@@ -425,8 +425,9 @@ class Ip2Region
      * $searcher = new Ip2Region();
      * $info = $searcher->getIpInfo('61.142.118.231');
      * echo $info['country']; // 输出：中国
-     * echo $info['region']; // 输出：广东省
-     * echo $info['city']; // 输出：电信
+     * echo $info['province']; // 输出：广东省
+     * echo $info['city']; // 输出：中山市
+     * echo $info['isp']; // 输出：电信
      *
      * $info = $searcher->getIpInfo('8.8.8.8');
      * echo $info['country']; // 输出：美国
@@ -449,7 +450,7 @@ class Ip2Region
             'isp'      => isset($parts[3]) ? $parts[3] : '', // ISP
             'ip'       => $ip,
             'version'  => $this->getIpVersion($ip),
-            'region'   => '' // @deprecated 已弃用，请使用 province 字段
+            'region'   => '' // @deprecated 已弃用，原用于世界级区域，现已不再使用
         );
     }
 

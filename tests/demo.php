@@ -75,7 +75,6 @@ try {
         if ($info) {
             echo "  IP: {$info['ip']}\n";
             echo "    国家: {$info['country']}\n";
-            echo "    地区: {$info['region']}\n";
             echo "    省份: {$info['province']}\n";
             echo "    城市: {$info['city']}\n";
             echo "    ISP: {$info['isp']}\n";
