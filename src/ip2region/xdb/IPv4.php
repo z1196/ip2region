@@ -58,7 +58,7 @@ class IPv4
      * echo $ipv4->bytes; // 输出：4
      * ```
      */
-    public static function default()
+    public static function default(): ?IPv4
     {
         if (self::$C == null) {
             // 14 = 4 + 4 + 2 + 4
@@ -82,7 +82,7 @@ class IPv4
      * $ipv4 = new IPv4(4, 'IPv4', 4, 14);
      * ```
      */
-    public function __construct($id, $name, $bytes, $segmentIndexSize)
+    public function __construct(int $id, string $name, int $bytes, int $segmentIndexSize)
     {
         $this->id = $id;
         $this->name = $name;
@@ -109,7 +109,7 @@ class IPv4
      * $result = $ipv4->ipSubCompare($ip1, $buff, 9);
      * ```
      */
-    public function ipSubCompare($ip1, $buff, $offset)
+    public function ipSubCompare(string $ip1, string $buff, int $offset): int
     {
         // ip1: Little endian byte order encoded long from searcher.
         // ip2: Little endian byte order read from xdb index.
@@ -142,7 +142,7 @@ class IPv4
      * echo $ipv4; // 输出：{id:4, name:IPv4, bytes:4, segmentIndexSize:14}
      * ```
      */
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf(
             "{id:%d, name:%s, bytes:%d, segmentIndexSize:%d}",
@@ -168,7 +168,7 @@ class IPv4
      * $invalid = IPv4::parse('invalid-ip'); // 返回 null
      * ```
      */
-    public static function parse($ipString)
+    public static function parse(string $ipString): ?string
     {
         return Util::parseIP($ipString);
     }
@@ -188,7 +188,7 @@ class IPv4
      * $invalid = IPv4::toLong('invalid-ip'); // 返回 null
      * ```
      */
-    public static function toLong($ipString)
+    public static function toLong(string $ipString): ?int
     {
         $ip = self::parse($ipString);
         if ($ip === null) {
@@ -211,7 +211,10 @@ class IPv4
      * $ip = IPv4::toStr(134744072); // 返回："61.142.118.231"
      * ```
      */
-    public static function toStr($long)
+    /**
+     * @return string|false
+     */
+    public static function toStr(int $long)
     {
         $ip = pack('N', $long);
         return inet_ntop($ip);
@@ -233,7 +236,7 @@ class IPv4
      * var_dump(IPv4::isValid('invalid-ip')); // 输出：false
      * ```
      */
-    public static function isValid($ipString)
+    public static function isValid(string $ipString): bool
     {
         return Util::isIPv4($ipString);
     }

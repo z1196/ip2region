@@ -73,7 +73,7 @@ class Searcher
      * $result = $searcher->search('61.142.118.231');
      * ```
      */
-    public static function newWithFileOnly($version, $dbFile)
+    public static function newWithFileOnly(int $version, string $dbFile): self
     {
         $self = $version === 4 ? IPv4::default() : IPv6::default();
         return new self($self, $dbFile, null, null);
@@ -98,7 +98,7 @@ class Searcher
      * $result = $searcher->search('61.142.118.231');
      * ```
      */
-    public static function newWithVectorIndex($version, $dbFile, $vIndex)
+    public static function newWithVectorIndex(int $version, string $dbFile, string $vIndex): self
     {
         $versionObj = $version === 4 ? IPv4::default() : IPv6::default();
         return new self($versionObj, $dbFile, $vIndex, null);
@@ -115,13 +115,14 @@ class Searcher
      * @param string $cBuff 内容缓冲区数据
      * @return Searcher 返回搜索引擎实例
      *
+     * @throws \Exception
      * @example
      * ```php
      * $searcher = Searcher::newWithBuffer(4, $contentBuffer);
      * $result = $searcher->search('61.142.118.231');
      * ```
      */
-    public static function newWithBuffer($version, $cBuff)
+    public static function newWithBuffer(int $version, string $cBuff): self
     {
         $versionObj = $version === 4 ? IPv4::default() : IPv6::default();
         return new self($versionObj, null, null, $cBuff);
@@ -148,7 +149,7 @@ class Searcher
      * $searcher = new Searcher(IPv4::default(), '/path/to/ipv4.xdb');
      * ```
      */
-    function __construct($version, $dbFile, $vectorIndex = null, $cBuff = null)
+    function __construct($version, ?string $dbFile = null, ?string $vectorIndex = null, ?string $cBuff = null)
     {
         $this->version = $version;
 
@@ -187,7 +188,7 @@ class Searcher
      * echo $region; // 输出：中国|广东省|中山市|电信
      * ```
      */
-    public function search($ip)
+    public function search(string $ip): string
     {
         $ipBytes = Util::parseIP($ip);
         if ($ipBytes == null) {
@@ -215,7 +216,7 @@ class Searcher
      * echo $region; // 输出：中国|广东省|中山市|电信
      * ```
      */
-    public function searchByBytes($ipBytes)
+    public function searchByBytes(string $ipBytes): string
     {
         // ip version check
         if (strlen($ipBytes) != $this->version->bytes) {
@@ -297,7 +298,7 @@ class Searcher
      * $data = $this->read(1024, 256); // 从偏移量1024读取256字节
      * ```
      */
-    private function read($offset, $len)
+    private function read(int $offset, int $len): string
     {
         // check the in-memory buffer first
         if ($this->contentBuff != null) {
@@ -338,7 +339,7 @@ class Searcher
      * echo "IO次数: " . $searcher->getIOCount();
      * ```
      */
-    public function getIOCount()
+    public function getIOCount(): int
     {
         return $this->ioCount;
     }
@@ -356,6 +357,9 @@ class Searcher
      * $version = $searcher->getIPVersion();
      * echo "IP版本: " . $version->id; // 输出：4
      * ```
+     */
+    /**
+     * @return IPv4|IPv6
      */
     public function getIPVersion()
     {
@@ -378,7 +382,7 @@ class Searcher
      * $searcher->close(); // 关闭文件句柄
      * ```
      */
-    public function close()
+    public function close(): void
     {
         if ($this->handle != null) {
             fclose($this->handle);

@@ -58,7 +58,7 @@ class IPv6
      * echo $ipv6->bytes; // 输出：16
      * ```
      */
-    public static function default()
+    public static function default(): ?IPv6
     {
         if (self::$C == null) {
             // 38 = 16 + 16 + 2 + 4
@@ -83,7 +83,7 @@ class IPv6
      * $ipv6 = new IPv6(6, 'IPv6', 16, 38);
      * ```
      */
-    public function __construct($id, $name, $bytes, $segmentIndexSize)
+    public function __construct(int $id, string $name, int $bytes, int $segmentIndexSize)
     {
         $this->id = $id;
         $this->name = $name;
@@ -110,7 +110,7 @@ class IPv6
      * $result = $ipv6->ipSubCompare($ip, $buff, 9);
      * ```
      */
-    public function ipSubCompare($ip, $buff, $offset)
+    public function ipSubCompare(string $ip, string $buff, int $offset): int
     {
         // return Util::ipCompare($ip, substr($buff, $offset, strlen($ip)));
         return Util::ipSubCompare($ip, $buff, $offset);
@@ -129,7 +129,7 @@ class IPv6
      * echo $ipv6; // 输出：{id:6, name:IPv6, bytes:16, segmentIndexSize:38}
      * ```
      */
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf(
             "{id:%d, name:%s, bytes:%d, segmentIndexSize:%d}",
@@ -155,7 +155,7 @@ class IPv6
      * $invalid = IPv6::parse('invalid-ip'); // 返回 null
      * ```
      */
-    public static function parse($ipString)
+    public static function parse(string $ipString): ?string
     {
         return Util::parseIP($ipString);
     }
@@ -175,7 +175,7 @@ class IPv6
      * $invalid = IPv6::toLong('invalid-ip'); // 返回 null
      * ```
      */
-    public static function toLong($ipString)
+    public static function toLong(string $ipString): ?int
     {
         $ip = self::parse($ipString);
         if ($ip === null) {
@@ -198,7 +198,10 @@ class IPv6
      * $ip = IPv6::toStr($longValue); // 返回IPv6地址字符串
      * ```
      */
-    public static function toStr($long)
+    /**
+     * @return string|false
+     */
+    public static function toStr(int $long)
     {
         $ip = '';
         for ($i = 0; $i < 16; $i++) {
@@ -223,7 +226,7 @@ class IPv6
      * var_dump(IPv6::isValid('invalid-ip')); // 输出：false
      * ```
      */
-    public static function isValid($ipString)
+    public static function isValid(string $ipString): bool
     {
         return Util::isIPv6($ipString);
     }

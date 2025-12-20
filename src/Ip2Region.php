@@ -82,7 +82,7 @@ class Ip2Region
      * $searcher = new Ip2Region('file', '/path/to/ipv4.xdb', '/path/to/ipv6.xdb');
      * ```
      */
-    public function __construct($cachePolicy = 'file', $dbPathV4 = null, $dbPathV6 = null)
+    public function __construct(string $cachePolicy = 'file', ?string $dbPathV4 = null, ?string $dbPathV6 = null)
     {
         $this->cachePolicy = $cachePolicy;
         $this->dbPathV4 = $dbPathV4;
@@ -123,7 +123,7 @@ class Ip2Region
      * echo $searcher->getIpVersion('2400:3200::1'); // 输出: v6
      * ```
      */
-    private function getIpVersion($ip)
+    private function getIpVersion(string $ip): string
     {
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             return 'v4';
@@ -151,7 +151,7 @@ class Ip2Region
      * $v6Searcher = $searcher->getSearcher('2400:3200::1'); // 返回IPv6搜索引擎
      * ```
      */
-    private function getSearcher($ip)
+    private function getSearcher(string $ip): \ip2region\xdb\Searcher
     {
         $version = $this->getIpVersion($ip);
         if ($version === 'v6') {
@@ -189,7 +189,7 @@ class Ip2Region
      * $v6DbPath = $searcher->getDbFile('v6'); // 获取IPv6数据库路径
      * ```
      */
-    private function detectProjectRoot()
+    private function detectProjectRoot(): ?string
     {
         // 通过反射获取实际文件路径
         $reflection = new ReflectionClass($this);
@@ -224,7 +224,7 @@ class Ip2Region
         return $projectRoot;
     }
 
-    private function getDbFile($version)
+    private function getDbFile(string $version): string
     {
         $dbPath = $version === 'v4' ? $this->dbPathV4 : $this->dbPathV6;
 
@@ -272,7 +272,7 @@ class Ip2Region
      * $v6Searcher = $searcher->createSearcher('v6'); // 创建IPv6搜索引擎
      * ```
      */
-    private function createSearcher($version)
+    private function createSearcher(string $version): \ip2region\xdb\Searcher
     {
         try {
             // 获取数据库文件
@@ -335,7 +335,7 @@ class Ip2Region
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
      */
-    public function memorySearch($ip)
+    public function memorySearch(string $ip): array
     {
         $searcher = $this->getSearcher($ip);
         $region = $searcher->search($ip);
@@ -362,7 +362,7 @@ class Ip2Region
      * }
      * ```
      */
-    public function batchSearch($ips)
+    public function batchSearch(array $ips): array
     {
         $results = array();
         foreach ($ips as $ip) {
@@ -393,7 +393,7 @@ class Ip2Region
      * echo $result; // 输出：中国|浙江省|杭州市|专线用户
      * ```
      */
-    public function searchIPv6($ip)
+    public function searchIPv6(string $ip): string
     {
         if (!$this->isIPv6($ip)) {
             throw new \Exception("不是有效的IPv6地址: {$ip}");
@@ -434,7 +434,7 @@ class Ip2Region
      * echo $info['isp']; // 输出：Level3
      * ```
      */
-    public function getIpInfo($ip)
+    public function getIpInfo(string $ip): ?array
     {
         $result = $this->memorySearch($ip);
         if ($result === null || !isset($result['region'])) {
@@ -469,7 +469,7 @@ class Ip2Region
      * var_dump($searcher->isIPv6('61.142.118.231')); // 输出：false
      * ```
      */
-    private function isIPv6($ip)
+    private function isIPv6(string $ip): bool
     {
         return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
     }
@@ -500,7 +500,7 @@ class Ip2Region
      * echo "IPv4已加载: " . ($stats['v4_loaded'] ? '是' : '否') . "\n";
      * ```
      */
-    public function getStats()
+    public function getStats(): array
     {
         $stats = array(
             'memory_usage' => memory_get_usage(true),
@@ -544,7 +544,7 @@ class Ip2Region
      * echo "峰值内存: " . $memory['peak'] . "\n";
      * ```
      */
-    public function getMemoryUsage()
+    public function getMemoryUsage(): array
     {
         $memory = memory_get_usage(true);
         $peak = memory_get_peak_usage(true);
@@ -573,7 +573,7 @@ class Ip2Region
      * echo $searcher->formatBytes(1048576); // 输出：1 MB
      * ```
      */
-    private function formatBytes($bytes, $precision = 2)
+    private function formatBytes(int $bytes, int $precision = 2): string
     {
         $units = array('B', 'KB', 'MB', 'GB', 'TB');
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
@@ -600,7 +600,7 @@ class Ip2Region
      * echo $searcher->simple('8.8.8.8'); // 输出：美国【Level3】
      * ```
      */
-    public function simple($ip)
+    public function simple(string $ip): ?string
     {
         $geo = $this->memorySearch($ip);
         $arr = explode('|', str_replace(array('0|'), '|', isset($geo['region']) ? $geo['region'] : ''));
@@ -625,7 +625,7 @@ class Ip2Region
      * echo $searcher->search('0.0.0.0'); // 输出：""（空字符串）
      * ```
      */
-    public function search($ip)
+    public function search(string $ip): string
     {
         $result = $this->memorySearch($ip);
         return isset($result['region']) ? $result['region'] : '';
@@ -651,7 +651,7 @@ class Ip2Region
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
      */
-    public function binarySearch($ip)
+    public function binarySearch(string $ip): array
     {
         return $this->memorySearch($ip);
     }
@@ -680,7 +680,7 @@ class Ip2Region
      * echo $result; // 输出：美国|0|0|Level3
      * ```
      */
-    public function searchByBytes($ipBytes)
+    public function searchByBytes(string $ipBytes): string
     {
         // 确定IP版本
         $version = strlen($ipBytes) == 4 ? 'v4' : 'v6';
@@ -718,7 +718,7 @@ class Ip2Region
      * echo $result['region']; // 输出：美国|0|0|Level3
      * ```
      */
-    public function btreeSearch($ip)
+    public function btreeSearch(string $ip): array
     {
         return $this->memorySearch($ip);
     }
@@ -740,7 +740,7 @@ class Ip2Region
      * echo $searcher->getProtocolVersion('invalid-ip'); // 输出：unknown
      * ```
      */
-    public function getProtocolVersion($ip)
+    public function getProtocolVersion(string $ip): string
     {
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             return 'v4';
@@ -772,7 +772,7 @@ class Ip2Region
      * echo "总IO次数: " . $ioCount['total_io_count'] . "\n";
      * ```
      */
-    public function getIOCount()
+    public function getIOCount(): array
     {
         $stats = $this->getStats();
         return array(
@@ -800,7 +800,7 @@ class Ip2Region
      * }
      * ```
      */
-    public function isIPv6Supported()
+    public function isIPv6Supported(): bool
     {
         return true;
     }
@@ -823,7 +823,7 @@ class Ip2Region
      * }
      * ```
      */
-    public function isIPv4Supported()
+    public function isIPv4Supported(): bool
     {
         return true;
     }
@@ -852,7 +852,7 @@ class Ip2Region
      * echo "IPv4已加载: " . ($info['v4_loaded'] ? '是' : '否') . "\n";
      * ```
      */
-    public function getDatabaseInfo()
+    public function getDatabaseInfo(): array
     {
         $info = array(
             'v4_loaded'      => $this->searcherV4 !== null,
@@ -912,7 +912,7 @@ class Ip2Region
      * }
      * ```
      */
-    public function getCustomDbInfo()
+    public function getCustomDbInfo(): array
     {
         $info = array(
             'v4' => $this->getDbFileInfo($this->dbPathV4),
@@ -945,7 +945,7 @@ class Ip2Region
      * $searcher->setCustomDbPaths();
      * ```
      */
-    public function setCustomDbPaths($v4Path = null, $v6Path = null)
+    public function setCustomDbPaths(?string $v4Path = null, ?string $v6Path = null): void
     {
         $this->dbPathV4 = $v4Path;
         $this->dbPathV6 = $v6Path;
@@ -981,7 +981,7 @@ class Ip2Region
      * echo "IPv4使用自定义数据库: " . ($status['v4'] ? '是' : '否') . "\n";
      * ```
      */
-    public function isUsingCustomDb()
+    public function isUsingCustomDb(): array
     {
         return array(
             'v4' => $this->dbPathV4 !== null && $this->isCustomDbExists($this->dbPathV4),
@@ -1015,7 +1015,7 @@ class Ip2Region
      * }
      * ```
      */
-    private function getDbFileInfo($filePath)
+    private function getDbFileInfo(?string $filePath): ?array
     {
         if ($filePath === null || !file_exists($filePath)) {
             return null;
@@ -1049,7 +1049,7 @@ class Ip2Region
      * }
      * ```
      */
-    private function isCustomDbExists($filePath)
+    private function isCustomDbExists(?string $filePath): bool
     {
         return $filePath !== null && file_exists($filePath);
     }
