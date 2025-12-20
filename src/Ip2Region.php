@@ -417,7 +417,7 @@ class Ip2Region
      *        'isp' => 'ISP服务商',
      *        'ip' => '原始IP地址',
      *        'version' => 'IP版本(v4/v6)',
-     *        'region' => '' // @deprecated 已弃用，原用于世界级区域，现已不再使用
+     *        'region' => '' // 已弃用，原用于世界级区域，现已不再使用
      *      ]
      *
      * @example
@@ -450,7 +450,7 @@ class Ip2Region
             'isp'      => isset($parts[3]) ? $parts[3] : '', // ISP
             'ip'       => $ip,
             'version'  => $this->getIpVersion($ip),
-            'region'   => '' // @deprecated 已弃用，原用于世界级区域，现已不再使用
+            'region'   => '' // 已弃用，原用于世界级区域，现已不再使用
         );
     }
 
