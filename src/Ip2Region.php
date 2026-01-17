@@ -250,7 +250,7 @@ class Ip2Region
 
         // 4. 抛出异常，提示用户下载数据库
         if ($version === 'v6') {
-            throw new \Exception("IPv6 查询需要下载完整数据库文件。\n\n下载方式：\n1. 使用 Composer 命令：composer download-db:v6\n2. 使用下载工具：./vendor/bin/ip2down download v6\n3. 手动下载：https://github.com/lionsoul2014/ip2region/raw/refs/heads/master/data/ip2region_v6.xdb");
+            throw new \Exception("IPv6 查询需要下载完整数据库文件。\n\n下载方式：\n1. 使用 Composer 命令：composer download-db:v6\n2. 使用下载工具：./vendor/bin/ip2down download v6\n3. 手动下载（代理优先）：https://gh-proxy.org/https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb\n   备用直链：https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb");
         } else {
             throw new \Exception("未找到 IPv4 数据库文件。\n\n解决方案：\n1. 使用 Composer 命令：composer download-db:v4\n2. 使用下载工具：./vendor/bin/ip2down download v4\n3. 确保数据库文件 ip2region_v4.xdb 存在于 db/ 目录中");
         }

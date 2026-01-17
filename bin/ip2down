@@ -79,16 +79,25 @@ class DatabaseManager
     {
         $this->config = array(
                 'v4' => array(
-                        'url'     => 'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb',
+                        // 优先使用代理下载；失败时自动回退到官方直链
+                        'urls'    => array(
+                                'https://gh-proxy.org/https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb',
+                                'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb',
+                        ),
                         'file'    => 'ip2region_v4.xdb',
                         'desc'    => 'IPv4 数据库',
                         'minSize' => 10 * 1024 * 1024
                 ),
                 'v6' => array(
-                        'url'     => 'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb',
+                        // 优先使用代理下载；失败时自动回退到官方直链
+                        'urls'    => array(
+                                'https://gh-proxy.org/https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb',
+                                'https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb',
+                        ),
                         'file'    => 'ip2region_v6.xdb',
                         'desc'    => 'IPv6 数据库',
-                        'minSize' => 30 * 1024 * 1024  // 30MB，实际文件约 34.6MB
+                        // 官方文件当前约 40.64MB（40642287 bytes），这里设置下限避免下载到 HTML/错误页
+                        'minSize' => 38 * 1024 * 1024
                 )
         );
         $pathInfo = detectProjectPath();
@@ -112,7 +121,7 @@ class DatabaseManager
             if ($callback) $callback("开始下载 {$config['desc']}...", $ver);
 
             try {
-                $result = $this->downloadFile($config['url'], $filePath, $config['minSize'], $callback, $ver);
+                $result = $this->downloadFile($config, $filePath, $config['minSize'], $callback, $ver);
                 $results[$ver] = $result;
             } catch (Exception $e) {
                 $results[$ver] = array('success' => false, 'error' => $e->getMessage());
@@ -122,14 +131,27 @@ class DatabaseManager
         return $results;
     }
 
-    private function downloadFile($url, $filePath, $minSize, $callback, $version)
+    private function downloadFile($config, $filePath, $minSize, $callback, $version)
     {
         $context = stream_context_create(array(
                 'http' => array('timeout' => 300)
         ));
 
-        $input = fopen($url, 'rb', false, $context);
-        if (!$input) throw new Exception("无法打开下载链接: $url");
+        $urls = isset($config['urls']) && is_array($config['urls']) ? $config['urls'] : array();
+        if (empty($urls) && isset($config['url'])) $urls = array($config['url']);
+        if (empty($urls)) throw new Exception("缺少下载链接配置");
+
+        $input = null;
+        $lastError = null;
+        foreach ($urls as $url) {
+            $input = @fopen($url, 'rb', false, $context);
+            if ($input) {
+                if ($callback) $callback("已选择下载地址: {$url}", $version);
+                break;
+            }
+            $lastError = $url;
+        }
+        if (!$input) throw new Exception("无法打开下载链接: {$lastError}");
 
         $output = fopen($filePath, 'wb');
         if (!$output) {
@@ -140,6 +162,7 @@ class DatabaseManager
         $bytesCopied = 0;
         $startTime = time();
         $chunkSize = 8192; // 8KB chunks for better memory management
+        $nextReport = 1024 * 1024; // 1MB
 
         try {
             while (!feof($input)) {
@@ -152,8 +175,9 @@ class DatabaseManager
                 $bytesCopied += $written;
 
                 // 减少回调频率，提高性能
-                if ($callback && $bytesCopied % (1024 * 1024) == 0) {
+                if ($callback && $bytesCopied >= $nextReport) {
                     $this->showDownloadProgress($callback, $bytesCopied, $startTime, $version);
+                    $nextReport = $bytesCopied + 1024 * 1024;
                 }
             }
         } catch (Exception $e) {
