@@ -248,7 +248,13 @@ class Searcher
 
         // binary search the segment index to get the region info
         $idxSize = $this->version->segmentIndexSize;
-        list($dataLen, $dataPtr, $l, $h) = [0, 0, 0, ($ePtr - $sPtr) / $idxSize];
+        $indexRange = $ePtr - $sPtr;
+        if ($indexRange < 0 || $indexRange % $idxSize !== 0) {
+            throw new \UnexpectedValueException(
+                sprintf('invalid segment index range: start=%d end=%d size=%d', $sPtr, $ePtr, $idxSize)
+            );
+        }
+        list($dataLen, $dataPtr, $l, $h) = [0, 0, 0, intdiv($indexRange, $idxSize)];
         while ($l <= $h) {
             $m = ($l + $h) >> 1;
             $p = $sPtr + $m * $idxSize;
