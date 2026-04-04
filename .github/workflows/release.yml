@@ -15,7 +15,8 @@ on:
   push:
     tags:
       - 'v*' # 仅匹配 v* 版本标签，如 v1.0、v20.15.10
-
+  workflow_dispatch:
+  
 name: Create Release
 permissions: write-all
 
