@@ -12,7 +12,7 @@
 # 下载的数据库文件
 /vendor/bin/ip2data/
 /vendor/bin/ip2database/
-/db/ip2region_v6.xdb
+# /db/ip2region_v6.xdb
 
 # 缓存文件
 /cache/
