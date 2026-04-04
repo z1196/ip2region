@@ -37,6 +37,22 @@ jobs:
       - name: Install dependencies
         run: npm install -g gen-git-log
 
+      # ⭐ 新增：下载最新 xdb 文件并覆盖 db 目录
+      - name: Download latest xdb files
+        run: |
+          mkdir -p db
+          curl -L -o db/ip2region_v4.xdb https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb
+          curl -L -o db/ip2region_v6.xdb https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb
+
+      # ⭐ 新增：自动 commit + push
+      - name: Commit and Push updated xdb files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add db/ip2region_v4.xdb db/ip2region_v6.xdb
+          git commit -m "chore: update xdb files automatically" || echo "No changes to commit"
+          git push
+
       - name: Find Last Tag
         id: last_tag
         run: |
